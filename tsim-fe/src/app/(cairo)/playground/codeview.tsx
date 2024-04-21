@@ -10,8 +10,9 @@ export const CodeView = () => {
   const {code, upd} = useCodeContext();
   return (
     <CodeMirror 
+      className='w-full p-2 rounded-lg '
       value={code} 
-      height='800px' 
+      height='65vh' 
       extensions={[javascript({ jsx: true })]} 
       onChange={upd}  
       theme={okaidia} 
