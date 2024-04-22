@@ -1,21 +1,7 @@
 
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select"
-
-
-import {
-    Accordion,
-    AccordionContent,
-    AccordionItem,
-    AccordionTrigger,
-} from "@/components/ui/accordion"
+import { Button } from "@/components/ui/button"
 
 export const abi = [
     {
@@ -60,7 +46,7 @@ export const ContractInterface = ({ abi_ }: { abi_: typeof abi }) => {
         <div className="grid w-full items-center gap-8 ">
             {abi_.map((e, i) => {
                 return (
-                    <div className="flex flex-col space-y-1.5">
+                    <div className="flex flex-col space-y-1.5 p-2 gap-4">
                         <h2 className="text-lg">{e.name} <span className="text-sm bg-yellow-300 text-black rounded-lg py-0.5 px-2">{e.state_mutability}</span> </h2> 
                         
                         {
@@ -73,6 +59,7 @@ export const ContractInterface = ({ abi_ }: { abi_: typeof abi }) => {
                                 )
                             })
                         }
+                        <Button>Transact</Button>
                     </div>
                 )
             })}

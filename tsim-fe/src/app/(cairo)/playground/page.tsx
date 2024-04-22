@@ -9,6 +9,8 @@ import { SideNav } from "./components/sidenav";
 import { useSideNavContext } from "@/lib/store/side-nav";
 import { TerminalView } from "./terminalview";
 import { DeployBar } from "./components/sidecomponents/DeployBar";
+import { SearchInFiles } from "./components/sidecomponents/SearchInFiles";
+import { CairoCompiler } from "./components/sidecomponents/CairoCompiler";
 
 
 const Page = () => {
@@ -30,7 +32,8 @@ const Page = () => {
               <>
                 <ResizablePanel defaultSize={20}>
                   <div className=" overflow-hidden">
-
+                    {nav == "compile" && <CairoCompiler />}
+                    {nav == "search" && <SearchInFiles />}
                     {nav == "deploy" && <DeployBar />}
                   {/* <div className="flex items-center justify-center p-6">
                     {nav + isOpen}
