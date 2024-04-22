@@ -10,13 +10,14 @@ export type SideNavContext = {
 export const useSideNavContext = create<SideNavContext>()((set) => ({
     nav: 'file',
     isOpen: true,
-    updateNav: (nav: SideNavContext['nav']) => set(() => ({
+    updateNav: (_nav: SideNavContext['nav']) => set((state) => ({
         isOpen: true,
-        nav : nav,
+        nav : _nav,
     })
     ),
     toggleBar: () => set((state) => ({
-        isOpen: !state.isOpen
+        isOpen: !state.isOpen,
+        nav: state.nav
     }))
 }))
 
