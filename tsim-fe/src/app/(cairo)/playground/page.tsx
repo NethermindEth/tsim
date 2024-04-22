@@ -21,7 +21,7 @@ const Page = () => {
         <header className="sticky top-0 z-10 flex h-[53px] items-center gap-1 border-b bg-background px-4">
           <h1 className="text-xl font-semibold">CairoVM Playground</h1>
         </header>
-        <main className="flex-1 gap-4 overflow-auto p-4 ">
+        <main className="flex-1 gap-4 p-4">
           <ResizablePanelGroup
             direction="horizontal"
             className="rounded-lg border"
@@ -29,10 +29,13 @@ const Page = () => {
             {isOpen &&
               <>
                 <ResizablePanel defaultSize={20}>
+                  <div className=" overflow-hidden">
+
                     {nav == "deploy" && <DeployBar />}
                   {/* <div className="flex items-center justify-center p-6">
                     {nav + isOpen}
                   </div> */}
+                  </div>
                 </ResizablePanel>
                 <ResizableHandle />
               </>

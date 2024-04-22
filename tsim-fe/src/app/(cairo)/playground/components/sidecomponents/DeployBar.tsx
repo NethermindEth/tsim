@@ -2,15 +2,6 @@
 
 import * as React from "react"
 
-import { Button } from "@/components/ui/button"
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
@@ -20,6 +11,14 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+
+
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+  } from "@/components/ui/accordion"
 
 
 export const DeployedContractBar = () => {
@@ -87,7 +86,7 @@ export const DeployedContractBar = () => {
 
 export const DeployBar = () => {
     return (
-                <div className="p-6 gap-6 flex flex-col">
+                <div className="p-6 gap-6 flex flex-col overflow-scroll">
                     <h1 className="font-bold">Deploy and Run Transactions</h1>
 
                     <form>
@@ -145,9 +144,36 @@ export const DeployBar = () => {
                     </div>
                 </form>
 
-
-                <DeployedContractBar />
+                <AccordionDemo />
+                {/* <DeployedContractBar /> */}
                 </div>
     )
 }
 
+
+  
+  export function AccordionDemo() {
+    return (
+      <Accordion type="single" collapsible className="w-full">
+        <AccordionItem value="item-1">
+          <AccordionTrigger>Is it accessible?</AccordionTrigger>
+          <AccordionContent>
+          <DeployedContractBar />
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="item-2">
+          <AccordionTrigger>Is it styled?</AccordionTrigger>
+          <AccordionContent>
+          <DeployedContractBar />
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="item-3">
+          <AccordionTrigger>Is it animated?</AccordionTrigger>
+          <AccordionContent>
+          <DeployedContractBar />
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    )
+  }
+  

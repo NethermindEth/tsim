@@ -10,7 +10,8 @@ export const SideBar = () => {
         return (
             <>
                 <ResizablePanel defaultSize={20}>
-                    <div className="flex items-center justify-center p-6">
+                    <div className="flex items-center justify-center p-6 overflow-scroll">
+                        
                         {nav + isOpen + " lfhjkjasd"}
                     </div>
                 </ResizablePanel>
