@@ -20,13 +20,15 @@ import {
     AccordionTrigger,
 } from "@/components/ui/accordion"
 import { ContractInterface, abi } from "./ ContractInterface"
+import { useCairoContext } from "@/lib/store/cairo"
 
 
 export const DeployedContractBar = () => {
+    
     return (
         <div className="p-6 gap-6 flex flex-col">
-            <h1 className="font-bold">Deploy and Run Transactions</h1>
-
+            <h1 className="font-bold">Deploy this and Run Transactions</h1>
+            
             <form>
                 <div className="grid w-full items-center gap-8 ">
 
@@ -86,16 +88,18 @@ export const DeployedContractBar = () => {
 }
 
 export const DeployBar = () => {
+    const { environment , changeEnvironment} = useCairoContext();
     return (
         <div className="p-6 gap-6 flex flex-col overflow-scroll">
             <h1 className="font-bold">Deploy and Run Transactions</h1>
+            <p>{environment.name + "  " + environment.id}</p>
 
             <form>
                 <div className="grid w-full items-center gap-8 ">
 
                     <div className="flex flex-col space-y-1.5">
                         <Label htmlFor="environment">Environment</Label>
-                        <Select>
+                        <Select onValueChange={(e) => changeEnvironment(e as any)}>
                             <SelectTrigger id="environment">
                                 <SelectValue placeholder="Choose an Environment" />
                             </SelectTrigger>
