@@ -229,4 +229,4 @@ export const erc20abi = {
             ]
         }
     ]
-  }
+}

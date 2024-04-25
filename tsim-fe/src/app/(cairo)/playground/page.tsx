@@ -13,7 +13,7 @@ import { SearchInFiles } from "./components/sidecomponents/SearchInFiles";
 import { CairoCompiler } from "./components/sidecomponents/CairoCompiler";
 
 
-const Page = () => {
+const Page = async () => {
   const { nav, isOpen } = useSideNavContext();
   return (
 
