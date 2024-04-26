@@ -34,45 +34,7 @@ export const useCairoContext = create<CairoContext>()((set) => ({
     provider: new RpcProvider({
         nodeUrl: sepolia.rpcUrls.default.http[0]
     }),
-    contracts: [{
-        contract_address: '0xWiseMrMusa',
-        contract_abi: [
-            {
-              "type": "function",
-              "name": "increase_balance",
-              "inputs": [
-                {
-                  "name": "amount",
-                  "type": "core::felt252"
-                }
-              ],
-              "outputs": [],
-              "state_mutability": "external"
-            },
-            {
-              "type": "function",
-              "name": "get_balance",
-              "inputs": [],
-              "outputs": [
-                {
-                  "type": "core::felt252"
-                }
-              ],
-              "state_mutability": "view"
-            },
-            {
-              "type": "function",
-              "name": "get_two",
-              "inputs": [],
-              "outputs": [
-                {
-                  "type": "core::felt252"
-                }
-              ],
-              "state_mutability": "view"
-            }
-          ]
-    }],
+    contracts: [],
 
     updateCairoVersion(cairo_version_) {
         set(() => ({
@@ -90,17 +52,18 @@ export const useCairoContext = create<CairoContext>()((set) => ({
     async addContract(contract_address) {
         let result = await provider.getClassAt(contract_address, "latest").then(
         );
-        let new_contracts = {
-            contract_address: contract_address,
-            contract_abi: result.abi
-        }
-        set((state) => ({ contracts: state.contracts.concat([new_contracts]) }))
+        set((state) => ({ contracts: state.contracts.concat([{
+          contract_address: contract_address,
+          environment: state.environment,
+          contract_abi: result.abi
+      }]) }))
     },
 
 }))
 
 export type Contract = {
     contract_address: Address,
+    environment: Chain,
     contract_hash?: Hash,
     contract_abi: {
         "type": "function" | "event",

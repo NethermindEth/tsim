@@ -11,7 +11,6 @@ import { TerminalView } from "./terminalview";
 import { DeployBar } from "./components/sidecomponents/DeployBar";
 import { SearchInFiles } from "./components/sidecomponents/SearchInFiles";
 import { CairoCompiler } from "./components/sidecomponents/CairoCompiler";
-import { Suspense } from "react";
 
 const Page = () => {
   const { nav, isOpen } = useSideNavContext();
