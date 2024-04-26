@@ -2,7 +2,7 @@ import Account from '@/app/(app)/account/page'
 import { create } from 'zustand'
 import { Address, Chain, Hash } from '../types/types'
 import { goerli, sepolia, mainnet, devnet, katana } from '../chains'
-import { RpcProvider } from 'starknet'
+import { Contract, RpcProvider } from 'starknet'
 
 const provider = new RpcProvider({
     nodeUrl: "https://free-rpc.nethermind.io/mainnet-juno/"
@@ -21,7 +21,7 @@ export type CairoContext = {
     cairo_version: '2.6.0' | '2.6.1' | '2.6.2' | '2.6.3',
     environment: Chain,
     provider: RpcProvider,
-    contracts: Contract[]
+    contracts: ContractDev[]
 
     updateCairoVersion: (cairo_version: CairoContext['cairo_version']) => void
     changeEnvironment: (new_env: "mainnet" | "sepolia" | "goerli" | "katana" | "devnet") => void
@@ -55,13 +55,14 @@ export const useCairoContext = create<CairoContext>()((set) => ({
         set((state) => ({ contracts: state.contracts.concat([{
           contract_address: contract_address,
           environment: state.environment,
-          contract_abi: result.abi
+          contract_abi: result.abi,
+          contract: new Contract(result.abi, contract_address, provider)
       }]) }))
     },
 
 }))
 
-export type Contract = {
+export type ContractDev = {
     contract_address: Address,
     environment: Chain,
     contract_hash?: Hash,
@@ -72,4 +73,5 @@ export type Contract = {
         "outputs": any,
         "state_mutability": "external" | "view"
     }[]
+    contract: Contract
 }
