@@ -8,13 +8,12 @@ export function ContractList({contracts}: {contracts : Contract[]}) {
             {
                 contracts.map((contract) => {
                     return (
-                        <AccordionItem value="item-1">
-                            <AccordionTrigger>{contract.contract_address}</AccordionTrigger>
+                        <AccordionItem value={contract.contract_address}>
+                            <AccordionTrigger>{contract.contract_address.slice(0,8)+"..."+contract.contract_address.slice(-5)}</AccordionTrigger>
                             <AccordionContent>
                                 <ContractInterface abi_={contract.contract_abi} />
                             </AccordionContent>
                         </AccordionItem>
-
                     )
                 })
             }
