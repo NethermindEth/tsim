@@ -67,9 +67,6 @@ export const SideNav = () => {
                     </Button>
                 </div>
 
-
-
-
                 <nav className="grid gap-1 p-2">
                     {
                         sideNav.map(

@@ -8,7 +8,7 @@ import { useCairoContext } from '@/lib/store/cairo'
 export const CairoCompiler = () => {
    const {cairo_version, updateCairoVersion} = useCairoContext();
     return(
-        <div className="flex flex-col p-4 gap-8">
+        <div className="flex flex-col p-4 gap-8 max-w-full">
             <h2 className="text-lg">Cairo Compiler</h2>
             <p>We are using a compiler version of {cairo_version} </p>
             <form>

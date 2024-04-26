@@ -4,7 +4,7 @@ import { Contract } from "@/lib/store/cairo";
 
 export function ContractList({contracts}: {contracts : Contract[]}) {
     return (
-        <Accordion type="single" collapsible className="w-full gap-4 p-4">
+        <Accordion type="single" collapsible className="max-w-full gap-4 p-4">
             {
                 contracts.map((contract) => {
                     return (

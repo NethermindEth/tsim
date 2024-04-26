@@ -3,8 +3,6 @@ import { create } from 'zustand'
 import { Address, Chain, Hash } from '../types/types'
 import { goerli, sepolia, mainnet, devnet, katana } from '../chains'
 import { RpcProvider } from 'starknet'
-import { abi } from '@/app/(cairo)/playground/components/sidecomponents/ ContractInterface'
-import { erc20abi } from '../abi/abi'
 
 const provider = new RpcProvider({
     nodeUrl: "https://free-rpc.nethermind.io/mainnet-juno/"
