@@ -12,8 +12,7 @@ import { DeployBar } from "./components/sidecomponents/DeployBar";
 import { SearchInFiles } from "./components/sidecomponents/SearchInFiles";
 import { CairoCompiler } from "./components/sidecomponents/CairoCompiler";
 
-
-const Page = async () => {
+const Page = () => {
   const { nav, isOpen } = useSideNavContext();
   return (
 
@@ -23,26 +22,21 @@ const Page = async () => {
         <header className="sticky top-0 z-10 flex h-[53px] items-center gap-1 border-b bg-background px-4">
           <h1 className="text-xl font-semibold">CairoVM Playground</h1>
         </header>
-        <main className="flex-1 gap-4 p-4">
+        <main className="flex-1 gap-4 p-4 h-full">
           <ResizablePanelGroup
             direction="horizontal"
             className="rounded-lg border"
           >
             {isOpen &&
-              <>
-                <ResizablePanel defaultSize={20}>
-                  <div className=" overflow-hidden">
-                    {nav == "compile" && <CairoCompiler />}
-                    {nav == "search" && <SearchInFiles />}
-                    {nav == "deploy" && <DeployBar />}
-                  {/* <div className="flex items-center justify-center p-6">
-                    {nav + isOpen}
-                  </div> */}
-                  </div>
-                </ResizablePanel>
-                <ResizableHandle />
-              </>
+              <ResizablePanel defaultSize={20}>
+                <div className=" overflow-hidden max-w-full">
+                  {nav == "compile" && <CairoCompiler />}
+                  {nav == "search" && <SearchInFiles />}
+                  {nav == "deploy" && <DeployBar />}
+                </div>
+              </ResizablePanel>
             }
+            <ResizableHandle />
             <ResizablePanel defaultSize={80}>
               <ResizablePanelGroup direction="vertical">
                 <ResizablePanel defaultSize={75}>
@@ -57,8 +51,6 @@ const Page = async () => {
           </ResizablePanelGroup>
         </main>
       </div>
-
-
     </div>
   );
 };

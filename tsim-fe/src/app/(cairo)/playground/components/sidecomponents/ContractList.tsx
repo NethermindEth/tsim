@@ -1,20 +1,19 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { ContractInterface } from "./ ContractInterface";
-import { Contract } from "@/lib/store/cairo";
+import { ContractDev } from "@/lib/store/cairo";
 
-export function ContractList({contracts}: {contracts : Contract[]}) {
+export function ContractList({contracts}: {contracts : ContractDev[]}) {
     return (
-        <Accordion type="single" collapsible className="w-full gap-4 p-4">
+        <Accordion type="single" collapsible className="max-w-full gap-4 p-4">
             {
                 contracts.map((contract) => {
                     return (
-                        <AccordionItem value="item-1">
-                            <AccordionTrigger>{contract.contract_address}</AccordionTrigger>
+                        <AccordionItem value={contract.contract_address}>
+                            <AccordionTrigger>{contract.contract_address.slice(0,8)+"..."+contract.contract_address.slice(-5)}</AccordionTrigger>
                             <AccordionContent>
-                                <ContractInterface abi_={contract.contract_abi} />
+                                <ContractInterface abi_={contract.contract_abi} contract={contract.contract} />
                             </AccordionContent>
                         </AccordionItem>
-
                     )
                 })
             }

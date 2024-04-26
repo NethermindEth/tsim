@@ -19,7 +19,6 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from "@/components/ui/accordion"
-import { ContractInterface, abi } from "./ ContractInterface"
 import { useCairoContext } from "@/lib/store/cairo"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -95,7 +94,7 @@ export const DeployBar = () => {
     const { environment, provider, changeEnvironment, addContract, contracts } = useCairoContext();
     const [contAddres, setContAddress] = React.useState<Address | undefined>();
     return (
-        <div className="p-6 gap-6 flex flex-col ">
+        <div className="p-6 gap-6 flex flex-col">
             <h1 className="font-bold">Deploy and Run Transactions</h1>
             <React.Suspense fallback={<Skeleton className="h-4 w-[250px]" />}>
                 <p>{environment.name + "  " + environment.id}</p>
@@ -105,7 +104,7 @@ export const DeployBar = () => {
             </React.Suspense>
 
             <form>
-                <div className="grid w-full items-center gap-8 ">
+                <div className="grid items-center gap-8 ">
                     <div className="flex flex-col space-y-1.5">
                         <Label htmlFor="environment">Environment</Label>
                         <Select onValueChange={(e) => changeEnvironment(e as any)}>
@@ -151,7 +150,7 @@ export const DeployBar = () => {
                     </div>
 
 
-                    <div className="flex flex-col space-y-1.5 gap-4">
+                    <div className="flex flex-col space-y-1.5 gap-4 max-w-full">
                         <Label htmlFor="class_hash">Contract Class Hash</Label>
                         <Input id="class_hash" onChange={(e) => { setContAddress(e.target.value as unknown as Address) }} />
                         <Button onClick={(e) => {
@@ -174,33 +173,3 @@ export const DeployBar = () => {
         </div>
     )
 }
-
-
-
-export function AccordionDemo() {
-    return (
-        <Accordion type="single" collapsible className="w-full gap-4 p-4">
-            <AccordionItem value="item-1">
-                <AccordionTrigger>Is it accessible?</AccordionTrigger>
-                <AccordionContent>
-                    <ContractInterface abi_={abi} />
-                </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="item-2">
-                <AccordionTrigger>Is it styled?</AccordionTrigger>
-                <AccordionContent>
-                    <DeployedContractBar />
-                </AccordionContent>
-            </AccordionItem>
-            <AccordionItem value="item-3">
-                <AccordionTrigger>Is it animated?</AccordionTrigger>
-                <AccordionContent>
-                    <DeployedContractBar />
-                </AccordionContent>
-            </AccordionItem>
-        </Accordion>
-    )
-}
-
-
-
