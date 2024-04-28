@@ -1,10 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Skeleton } from "@/components/ui/skeleton";
-import { useCairoContext } from "@/lib/store/cairo";
 import { Label } from "@radix-ui/react-label";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@radix-ui/react-select";
-import { Address } from "cluster";
 import React from "react";
 
 export const DebugBar = () => {

@@ -2,8 +2,9 @@
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import { type Contract } from "starknet"
-import { useState } from "react"
+import { Result, type Contract } from "starknet"
+import { useRef, useState } from "react"
+import { feltToString } from "@/lib/utils"
 
 export const abi = [
     {
@@ -49,29 +50,31 @@ export const ContractInterface = ({ abi_, contract }: { abi_: typeof abi, contra
             {abi_
                 .filter((abi) => abi.type == 'function')
                 .map((e, i) => {
-                    const [output, setOutput] = useState<string | undefined>(undefined);
+                    const [output, setOutput] = useState<Result>();
                     return (
                         <div className="flex flex-col space-y-1.5 p-2 gap-4">
                             <h2 className="text-lg">{e.name} <span className="text-sm bg-yellow-300 text-black rounded-lg py-0.5 px-2">{e.state_mutability}</span> </h2>
 
                             {
-                                e.inputs.map((e_, i_) => {
+                                e.inputs.map((e_, i_) => { 
+                                    let inputRef = useRef<HTMLInputElement>(null);
                                     return (
                                         <div className="flex flex-col space-y-1.5">
                                             <Label htmlFor={e_.name}>{e_.name}</Label>
-                                            <Input id="env" placeholder="" />
+                                            <Input id="env" placeholder="" ref={inputRef} />
+                                            <p>{inputRef.current?.value}</p>
                                         </div>
                                     )
                                 })
                             }
                             <Button onClick={async () => { 
                                 const bal1 = await contract.call(e.name)
-                                setOutput(bal1.toString())
+                                setOutput(bal1)
                             }}>Transact</Button>
                             {
-                                output &&      
+                                output &&
                                 <div className="flex flex-col space-y-1.5">
-                                    {output}
+                                    {e.outputs[0].type == "core::felt252" ? feltToString(output) : output.toString()}
                                 </div>
                             }
                         </div>
