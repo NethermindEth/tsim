@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { type Contract } from "starknet"
+import { useState } from "react"
 
 export const abi = [
     {
@@ -48,6 +49,7 @@ export const ContractInterface = ({ abi_, contract }: { abi_: typeof abi, contra
             {abi_
                 .filter((abi) => abi.type == 'function')
                 .map((e, i) => {
+                    const [output, setOutput] = useState<string | undefined>(undefined);
                     return (
                         <div className="flex flex-col space-y-1.5 p-2 gap-4">
                             <h2 className="text-lg">{e.name} <span className="text-sm bg-yellow-300 text-black rounded-lg py-0.5 px-2">{e.state_mutability}</span> </h2>
@@ -63,10 +65,15 @@ export const ContractInterface = ({ abi_, contract }: { abi_: typeof abi, contra
                                 })
                             }
                             <Button onClick={async () => { 
-                                console.log(e.name)
                                 const bal1 = await contract.call(e.name)
-                                console.log('Initial balance =', bal1.toString())
-                                }}>Transact</Button>
+                                setOutput(bal1.toString())
+                            }}>Transact</Button>
+                            {
+                                output &&      
+                                <div className="flex flex-col space-y-1.5">
+                                    {output}
+                                </div>
+                            }
                         </div>
                     )
                 })}
