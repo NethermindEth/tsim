@@ -11,6 +11,7 @@ import { TerminalView } from "./terminalview";
 import { DeployBar } from "./components/sidecomponents/DeployBar";
 import { SearchInFiles } from "./components/sidecomponents/SearchInFiles";
 import { CairoCompiler } from "./components/sidecomponents/CairoCompiler";
+import { DebugBar } from "./components/sidecomponents/DebugBar";
 
 const Page = () => {
   const { nav, isOpen } = useSideNavContext();
@@ -33,6 +34,7 @@ const Page = () => {
                   {nav == "compile" && <CairoCompiler />}
                   {nav == "search" && <SearchInFiles />}
                   {nav == "deploy" && <DeployBar />}
+                  {nav == "debug" && <DebugBar />}
                 </div>
               </ResizablePanel>
             }
