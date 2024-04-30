@@ -66,6 +66,7 @@
     "drizzle-orm": "^0.30.8",
     "drizzle-zod": "^0.5.1",
     "embla-carousel-react": "^8.0.2",
+    "get-starknet": "^3.3.0",
     "input-otp": "^1.2.4",
     "lucide-react": "^0.371.0",
     "nanoid": "^5.0.7",

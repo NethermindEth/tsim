@@ -37,4 +37,7 @@ export const mainnet = {
       url: 'https://goerli.starkcompass.com',
     },
   },
+  isTestnet: false,
+  isLocalNode: false
 }
+

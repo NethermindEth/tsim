@@ -13,12 +13,6 @@ import {
 } from "@/components/ui/select"
 
 
-import {
-    Accordion,
-    AccordionContent,
-    AccordionItem,
-    AccordionTrigger,
-} from "@/components/ui/accordion"
 import { useCairoContext } from "@/lib/store/cairo"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -27,6 +21,7 @@ import { ContractList } from "./ContractList"
 
 
 export const DeployedContractBar = () => {
+    const { environment, connectWallet } = useCairoContext()
 
     return (
         <div className="p-6 gap-6 flex flex-col">
@@ -49,20 +44,25 @@ export const DeployedContractBar = () => {
                             </SelectContent>
                         </Select>
                     </div>
-                    <div className="flex flex-col space-y-1.5">
-                        <Label htmlFor="account">Account</Label>
-                        <Select>
-                            <SelectTrigger id="account">
-                                <SelectValue placeholder="Select an Account" />
-                            </SelectTrigger>
-                            <SelectContent position="popper">
-                                <SelectItem value="account1">Account 1</SelectItem>
-                                <SelectItem value="account2">Account 2</SelectItem>
-                                <SelectItem value="account3">Account 3</SelectItem>
-                                <SelectItem value="account4">Account 4</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
+                    <Button onClick={connectWallet}>Connect Wallet</Button>
+                    {
+                        environment.isLocalNode && (
+                            <div className="flex flex-col space-y-1.5">
+                                <Label htmlFor="account">Account for DevNet</Label>
+                                <Select>
+                                    <SelectTrigger id="account">
+                                        <SelectValue placeholder="Select an Account" />
+                                    </SelectTrigger>
+                                    <SelectContent position="popper">
+                                        <SelectItem value="account1">Account 1</SelectItem>
+                                        <SelectItem value="account2">Account 2</SelectItem>
+                                        <SelectItem value="account3">Account 3</SelectItem>
+                                        <SelectItem value="account4">Account 4</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        )
+                    }
 
                     <div className="flex flex-col space-y-1.5">
                         <Label htmlFor="contract">Contract</Label>
@@ -91,7 +91,7 @@ export const DeployedContractBar = () => {
 }
 
 export const DeployBar = () => {
-    const { environment, provider, changeEnvironment, addContract, contracts } = useCairoContext();
+    const { environment, provider, changeEnvironment, addContract, contracts, connectWallet } = useCairoContext();
     const [contAddres, setContAddress] = React.useState<Address | undefined>();
     return (
         <div className="p-6 gap-6 flex flex-col">
@@ -119,20 +119,28 @@ export const DeployBar = () => {
                             </SelectContent>
                         </Select>
                     </div>
-                    <div className="flex flex-col space-y-1.5">
-                        <Label htmlFor="account">Account</Label>
-                        <Select>
-                            <SelectTrigger id="account">
-                                <SelectValue placeholder="Select an Account" />
-                            </SelectTrigger>
-                            <SelectContent position="popper">
-                                <SelectItem value="account1">Account 1</SelectItem>
-                                <SelectItem value="account2">Account 2</SelectItem>
-                                <SelectItem value="account3">Account 3</SelectItem>
-                                <SelectItem value="account4">Account 4</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
+                    <Button onClick={(e) => {
+                        e.preventDefault()
+                        connectWallet()
+                    }}>Connect Wallet</Button>
+                    {
+                        environment.isLocalNode && (
+                            <div className="flex flex-col space-y-1.5">
+                                <Label htmlFor="account">Account</Label>
+                                <Select>
+                                    <SelectTrigger id="account">
+                                        <SelectValue placeholder="Select an Account" />
+                                    </SelectTrigger>
+                                    <SelectContent position="popper">
+                                        <SelectItem value="account1">Account 1</SelectItem>
+                                        <SelectItem value="account2">Account 2</SelectItem>
+                                        <SelectItem value="account3">Account 3</SelectItem>
+                                        <SelectItem value="account4">Account 4</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        )
+                    }
 
                     <div className="flex flex-col space-y-1.5">
                         <Label htmlFor="contract">Contract</Label>
@@ -158,8 +166,8 @@ export const DeployBar = () => {
                             addContract(contAddres ?? "0x")
                         }}>Get Contract</Button>
                         <React.Suspense fallback={<Skeleton className="h-4 w-[250px]" />}>
-                            {contracts.map((e,i)=> {
-                                return(
+                            {contracts.map((e, i) => {
+                                return (
                                     <p key={i}>{e.contract_address}</p>
                                 )
                             })}

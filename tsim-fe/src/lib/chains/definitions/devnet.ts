@@ -5,18 +5,18 @@ export const devnet = {
   nativeCurrency: { name: 'Stark', symbol: 'STRK', decimals: 18 },
   rpcUrls: {
     alchemy: {
-      http: ['https://starknet-mainnet.g.alchemy.com/v2'],
+      http: ['http://127.0.0.1:5050'],
       webSocket: ['wss://starknet-mainnet.g.alchemy.com/v2'],
     },
     infura: {
-      http: ['https://starknet-mainnet.infura.io/v3'],
+      http: ['http://127.0.0.1:5050'],
       webSocket: ['wss://starknet-mainnet.infura.io/ws/v3'],
     },
     default: {
-      http: ['https://free-rpc.nethermind.io/mainnet-juno'],
+        http: ['http://127.0.0.1:5050'],
     },
     public: {
-      http: ['https://free-rpc.nethermind.io/mainnet-juno'],
+      http: ['http://127.0.0.1:5050'],
     },
   },
   blockExplorers: {
@@ -37,4 +37,7 @@ export const devnet = {
       url: 'https://goerli.starkcompass.com',
     },
   },
+  isTestnet: true,
+  isLocalNode: true
 }
+

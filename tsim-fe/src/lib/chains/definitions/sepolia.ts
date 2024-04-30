@@ -37,4 +37,7 @@ export const sepolia = {
             url: 'https://sepolia.starkcompass.com',
         },
     },
+    isTestnet: true,
+    isLocalNode: false
 }
+
