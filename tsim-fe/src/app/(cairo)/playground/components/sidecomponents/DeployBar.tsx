@@ -158,11 +158,11 @@ export const DeployBar = () => {
                             addContract(contAddres ?? "0x")
                         }}>Get Contract</Button>
                         <React.Suspense fallback={<Skeleton className="h-4 w-[250px]" />}>
-                            <p>{contracts.map((e,i)=> {
+                            {contracts.map((e,i)=> {
                                 return(
-                                    <p>{e.contract_address}</p>
+                                    <p key={i}>{e.contract_address}</p>
                                 )
-                            })}</p>
+                            })}
                         </React.Suspense>
                     </div>
                 </div>
