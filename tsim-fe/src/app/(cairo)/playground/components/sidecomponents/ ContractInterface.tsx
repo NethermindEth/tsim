@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Result, type Contract } from "starknet"
-import { useRef, useState } from "react"
+import { LegacyRef, useRef, useState } from "react"
 import { feltToString } from "@/lib/utils"
 
 export const abi = [
@@ -51,24 +51,26 @@ export const ContractInterface = ({ abi_, contract }: { abi_: typeof abi, contra
                 .filter((abi) => abi.type == 'function')
                 .map((e, i) => {
                     const [output, setOutput] = useState<Result>();
+                    let inputsRefs = e.inputs.map(() => useRef<HTMLInputElement>(null));
+                    let thisref = useRef<HTMLInputElement>(null)
                     return (
                         <div className="flex flex-col space-y-1.5 p-2 gap-4">
                             <h2 className="text-lg">{e.name} <span className="text-sm bg-yellow-300 text-black rounded-lg py-0.5 px-2">{e.state_mutability}</span> </h2>
-
                             {
                                 e.inputs.map((e_, i_) => { 
-                                    let inputRef = useRef<HTMLInputElement>(null);
                                     return (
                                         <div className="flex flex-col space-y-1.5">
                                             <Label htmlFor={e_.name}>{e_.name}</Label>
-                                            <Input id="env" placeholder="" ref={inputRef} />
-                                            <p>{inputRef.current?.value}</p>
+                                            <Input id="env" placeholder="" itemRef="" ref={inputsRefs[i_]} value={inputsRefs[i_]?.current?.value} />
                                         </div>
                                     )
                                 })
                             }
+
                             <Button onClick={async () => { 
-                                const bal1 = await contract.call(e.name)
+                                let inputs_ = inputsRefs.map((e) => e.current?.value)
+                                //TODO: Handle the arguments correctly
+                                const bal1 = await contract.call(e.name, inputs_ as any)
                                 setOutput(bal1)
                             }}>Transact</Button>
                             {
