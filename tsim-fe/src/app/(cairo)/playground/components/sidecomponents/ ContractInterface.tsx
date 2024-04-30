@@ -3,8 +3,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Result, type Contract } from "starknet"
-import { LegacyRef, useRef, useState } from "react"
+import { useRef, useState } from "react"
 import { feltToString } from "@/lib/utils"
+import { v4 as uuidv4 } from 'uuid';
 
 export const abi = [
     {
@@ -46,7 +47,7 @@ export const abi = [
 
 export const ContractInterface = ({ abi_, contract }: { abi_: typeof abi, contract: Contract }) => {
     return (
-        <div className="grid w-full items-center gap-8 ">
+        <div key={uuidv4()} className="grid w-full items-center gap-8 ">
             {abi_
                 .filter((abi) => abi.type == 'function')
                 .map((e, i) => {
@@ -54,23 +55,28 @@ export const ContractInterface = ({ abi_, contract }: { abi_: typeof abi, contra
                     let inputsRefs = e.inputs.map(() => useRef<HTMLInputElement>(null));
                     let thisref = useRef<HTMLInputElement>(null)
                     return (
-                        <div className="flex flex-col space-y-1.5 p-2 gap-4">
+                        <div
+                            key={i}
+                            className="flex flex-col space-y-1.5 p-2 gap-4">
                             <h2 className="text-lg">{e.name} <span className="text-sm bg-yellow-300 text-black rounded-lg py-0.5 px-2">{e.state_mutability}</span> </h2>
                             {
-                                e.inputs.map((e_, i_) => { 
+                                e.inputs.map((e_, i_) => {
+                                    let [input, setInput] = useState<string>("")
                                     return (
-                                        <div className="flex flex-col space-y-1.5">
+                                        <div
+                                            key={i_ + e_.name}
+                                            className="flex flex-col space-y-1.5">
                                             <Label htmlFor={e_.name}>{e_.name}</Label>
-                                            <Input id="env" placeholder="" itemRef="" ref={inputsRefs[i_]} value={inputsRefs[i_]?.current?.value} />
+                                            <Input id="env" placeholder="" itemRef="" ref={inputsRefs[i_]} value={input} onChange={(e) => setInput(e.target.value)}/>
                                         </div>
                                     )
                                 })
                             }
-
-                            <Button onClick={async () => { 
+                            <Button onClick={async () => {
                                 let inputs_ = inputsRefs.map((e) => e.current?.value)
-                                //TODO: Handle the arguments correctly
+                                //TODO: Handle the arguments correctly and remove the any type
                                 const bal1 = await contract.call(e.name, inputs_ as any)
+                                console.log(bal1)
                                 setOutput(bal1)
                             }}>Transact</Button>
                             {
