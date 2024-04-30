@@ -55,5 +55,8 @@ export type Chain = {
         decimals: number
     }
     rpcUrls: any,
-    blockExplorers: any
+    blockExplorers: any,
+    isTestnet?: boolean,
+    isLocalNode?: boolean
 }
+

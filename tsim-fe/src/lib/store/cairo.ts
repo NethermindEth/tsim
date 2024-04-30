@@ -1,9 +1,8 @@
-import Account from '@/app/(app)/account/page'
 import { create } from 'zustand'
 import { Address, Chain, Hash } from '../types/types'
 import { goerli, sepolia, mainnet, devnet, katana } from '../chains'
-import { Contract, RpcProvider } from 'starknet'
-
+import { Account, Contract, RpcProvider } from 'starknet'
+import { connect, disconnect  } from 'get-starknet'
 const provider = new RpcProvider({
     nodeUrl: "https://free-rpc.nethermind.io/mainnet-juno/"
 })
@@ -21,15 +20,17 @@ export type CairoContext = {
     cairo_version: '2.6.0' | '2.6.1' | '2.6.2' | '2.6.3',
     environment: Chain,
     provider: RpcProvider,
-    contracts: ContractDev[]
-
-    updateCairoVersion: (cairo_version: CairoContext['cairo_version']) => void
-    changeEnvironment: (new_env: "mainnet" | "sepolia" | "goerli" | "katana" | "devnet") => void
-    addContract: (contract_address: Address) => void;
+    account?: Account,
+    contracts: ContractDev[],
+    updateCairoVersion: (cairo_version: CairoContext['cairo_version']) => void,
+    changeEnvironment: (new_env: "mainnet" | "sepolia" | "goerli" | "katana" | "devnet") => void,
+    addContract: (contract_address: Address) => void
+    connectWallet: () => void
 }
 
 export const useCairoContext = create<CairoContext>()((set) => ({
     cairo_version: "2.6.3",
+    account: undefined,
     environment: sepolia,
     provider: new RpcProvider({
         nodeUrl: sepolia.rpcUrls.default.http[0]
@@ -42,7 +43,7 @@ export const useCairoContext = create<CairoContext>()((set) => ({
         }))
     },
     changeEnvironment(new_env) {
-        set(() => ({
+        set((state) => ({
             environment: chains[new_env],
             provider: new RpcProvider({
                 nodeUrl: chains[new_env].rpcUrls.default.http[0]
@@ -50,8 +51,7 @@ export const useCairoContext = create<CairoContext>()((set) => ({
         }))
     },
     async addContract(contract_address) {
-        let result = await provider.getClassAt(contract_address, "latest").then(
-        );
+        let result = await provider.getClassAt(contract_address, "latest");
         set((state) => ({ contracts: state.contracts.concat([{
           contract_address: contract_address,
           environment: state.environment,
@@ -59,6 +59,15 @@ export const useCairoContext = create<CairoContext>()((set) => ({
           contract: new Contract(result.abi, contract_address, provider)
       }]) }))
     },
+    async connectWallet() {
+        let ress = await connect({
+            modalMode: "alwaysAsk",
+            modalTheme: "dark",
+        })
+
+        console.log(ress)
+        // set((state) => ({ account: new Account(state.environment.wallets.default.privateKey) }))
+    }
 
 }))
 

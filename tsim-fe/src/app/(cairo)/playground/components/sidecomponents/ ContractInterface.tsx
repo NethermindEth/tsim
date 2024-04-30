@@ -58,7 +58,7 @@ export const ContractInterface = ({ abi_, contract }: { abi_: typeof abi, contra
                         <div
                             key={i}
                             className="flex flex-col space-y-1.5 p-2 gap-4">
-                            <h2 className="text-lg">{e.name} <span className="text-sm bg-yellow-300 text-black rounded-lg py-0.5 px-2">{e.state_mutability}</span> </h2>
+                            <h2 className="text-lg">{e.name} <span className="text-sm bg-yellow-300 text-black rounded-lg py-0.5 px-2">{e.state_mutability == 'external' ? 'Write' : 'Read'}</span> </h2>
                             {
                                 e.inputs.map((e_, i_) => {
                                     let [input, setInput] = useState<string>("")
@@ -67,7 +67,7 @@ export const ContractInterface = ({ abi_, contract }: { abi_: typeof abi, contra
                                             key={i_ + e_.name}
                                             className="flex flex-col space-y-1.5">
                                             <Label htmlFor={e_.name}>{e_.name}</Label>
-                                            <Input id="env" placeholder="" itemRef="" ref={inputsRefs[i_]} value={input} onChange={(e) => setInput(e.target.value)}/>
+                                            <Input id="env" placeholder="" itemRef="" ref={inputsRefs[i_]} value={input} onChange={(e) => setInput(e.target.value)} />
                                         </div>
                                     )
                                 })
