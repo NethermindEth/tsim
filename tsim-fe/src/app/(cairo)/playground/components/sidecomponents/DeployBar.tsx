@@ -21,7 +21,7 @@ import { ContractList } from "./ContractList"
 
 
 export const DeployedContractBar = () => {
-    const { environment, connectWallet } = useCairoContext()
+    const { environment, connectWallet, snConnection } = useCairoContext()
 
     return (
         <div className="p-6 gap-6 flex flex-col">
@@ -44,7 +44,10 @@ export const DeployedContractBar = () => {
                             </SelectContent>
                         </Select>
                     </div>
-                    <Button onClick={connectWallet}>Connect Wallet</Button>
+                    {
+                        snConnection ? (<Button disabled>Connected</Button>) : <Button onClick={connectWallet}>Connect Wallet</Button>
+                    }
+
                     {
                         environment.isLocalNode && (
                             <div className="flex flex-col space-y-1.5">
@@ -91,7 +94,7 @@ export const DeployedContractBar = () => {
 }
 
 export const DeployBar = () => {
-    const { environment, provider, changeEnvironment, addContract, contracts, connectWallet } = useCairoContext();
+    const { environment, provider, changeEnvironment, addContract, contracts, connectWallet, snConnection } = useCairoContext();
     const [contAddres, setContAddress] = React.useState<Address | undefined>();
     return (
         <div className="p-6 gap-6 flex flex-col">
@@ -119,6 +122,13 @@ export const DeployBar = () => {
                             </SelectContent>
                         </Select>
                     </div>
+                    {
+                        snConnection ? (<Button disabled>Connected</Button>) : <Button onClick={(e) => {
+                            e.preventDefault()
+                            connectWallet()
+                        }}>Connect Wallet</Button>
+                    }
+
                     <Button onClick={(e) => {
                         e.preventDefault()
                         connectWallet()
