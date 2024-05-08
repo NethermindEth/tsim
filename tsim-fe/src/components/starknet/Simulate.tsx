@@ -52,13 +52,18 @@ const Simulate = () => {
       blockIdentifier: "latest",
     };
 
+    //FIXME: Should remove later
+    console.log("Account: " + account);
+
     const simulation = await account?.simulateTransaction(
       invocation,
       simulateTransactionOptions
     );
+    console.log("Simulation: ");
     console.log(simulation);
     if (simulation) {
       const trace = await decodeTrace(simulation[0].transaction_trace);
+      console.log("Trace: ");
       console.log(trace);
     }
   };
