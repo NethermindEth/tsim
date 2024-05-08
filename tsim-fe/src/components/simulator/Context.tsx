@@ -3,6 +3,34 @@ import { FileItemProps, Workspace as WorkspaceType } from "./types";
 import { DEFAULT_WORKSPACE_TREE } from "./constants";
 import { Account } from "starknet";
 
+const initialCode = 
+`#[starknet::interface]
+pub trait IHelloStarknet<TContractState> {
+    fn increase_balance(ref self: TContractState, amount: felt252);
+    fn get_balance(self: @TContractState) -> felt252;
+}
+
+#[starknet::contract]
+mod HelloStarknet {
+    #[storage]
+    struct Storage {
+        balance: felt252, 
+    }
+
+    #[abi(embed_v0)]
+    impl HelloStarknetImpl of super::IHelloStarknet<ContractState> {
+        fn increase_balance(ref self: ContractState, amount: felt252) {
+            assert(amount != 0, 'Amount cannot be 0');
+            self.balance.write(self.balance.read() + amount);
+        }
+
+        fn get_balance(self: @ContractState) -> felt252 {
+            self.balance.read()
+        }
+    }
+}
+`
+
 interface WorkspaceContextType {
   workspaces: WorkspaceType[];
   selectedWorkspace: number;
@@ -31,7 +59,7 @@ export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({
     DEFAULT_WORKSPACE_TREE,
   ]);
   const [selectedWorkspace, setSelectedWorkspace] = useState<number>(0);
-  const [selectedCode, setSelectedCode] = useState<string>("");
+  const [selectedCode, setSelectedCode] = useState<string>(initialCode);
   const [selectedFileName, setSelectedFileName] = useState<string>("Balance");
   const [compilationResult, setCompilationResult] = useState<string>("");
   const [contractAddress, setContractAddress] = useState<string>("");

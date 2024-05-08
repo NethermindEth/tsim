@@ -16,6 +16,7 @@ import {
 } from "@/components/simulator/constants";
 import { PreDeployedAccount } from "@/components/simulator/types";
 
+
 const DeclareAndDeploy = () => {
   const { compilationResult, contractAddress, setContractAddress, setAccount , account } =
     useWorkspace();
