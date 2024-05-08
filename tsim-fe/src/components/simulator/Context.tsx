@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, ReactNode } from "react";
 import { FileItemProps, Workspace as WorkspaceType } from "./types";
 import { DEFAULT_WORKSPACE_TREE } from "./constants";
+import { Account } from "starknet";
 
 interface WorkspaceContextType {
   workspaces: WorkspaceType[];
@@ -8,11 +9,15 @@ interface WorkspaceContextType {
   selectedCode: string;
   selectedFileName: string;
   compilationResult: string;
+  contractAddress: string;
+  account: Account | undefined;
   setWorkspaces: (workspaces: WorkspaceType[]) => void;
   setSelectedWorkspace: (index: number) => void;
   setSelectedCode: (code: string) => void;
   setSelectedFileName: (fileName: string) => void;
   setCompilationResult: (result: string) => void;
+  setContractAddress: (address: string) => void;
+  setAccount: (account: Account) => void;
 }
 
 const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
@@ -29,6 +34,8 @@ export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({
   const [selectedCode, setSelectedCode] = useState<string>("");
   const [selectedFileName, setSelectedFileName] = useState<string>("Balance");
   const [compilationResult, setCompilationResult] = useState<string>("");
+  const [contractAddress, setContractAddress] = useState<string>("");
+  const [account, setAccount] = useState<Account>();
 
   return (
     <WorkspaceContext.Provider
@@ -38,11 +45,15 @@ export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({
         selectedCode,
         selectedFileName,
         compilationResult,
+        contractAddress,
+        account,
         setWorkspaces,
         setSelectedWorkspace,
         setSelectedCode,
         setSelectedFileName,
         setCompilationResult,
+        setContractAddress,
+        setAccount,
       }}
     >
       {children}

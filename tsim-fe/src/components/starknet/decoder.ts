@@ -1,4 +1,5 @@
 import { RpcProvider, Abi, Contract, selector } from "starknet";
+import { NETHERMIND_DEVNET_URL } from "@/components/simulator/constants";
 
 type CallPuts = {
   name: string;
@@ -165,7 +166,7 @@ const decodePuts = (abi: Abi, call: string[], puts: CallPuts) => {
 
 export const getAbi = async (address: string): Promise<Abi> => {
   const provider = new RpcProvider({
-    nodeUrl: "https://free-rpc.nethermind.io/sepolia-juno/",
+    nodeUrl: NETHERMIND_DEVNET_URL,
   });
   const classHash = await provider.getClassHashAt(address);
   let abi = (await provider.getClass(classHash)).abi;

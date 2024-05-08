@@ -9,14 +9,19 @@ import {
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
 import { COMPILE_CAIRO_CONTRACT_ENDPOINT } from "./constants";
-import WalletConnect from "@/components/starknet/WalletConnect";
+import { Simulate, DeclareAndDeploy } from "@/components/starknet";
 
 export default function BottomLeft() {
-  const { selectedCode, selectedFileName, setCompilationResult } =
-    useWorkspace();
+  const {
+    selectedCode,
+    selectedFileName,
+    setCompilationResult,
+    setContractAddress,
+  } = useWorkspace();
 
   const compileCode = async () => {
     console.log("Compiling code...");
+    setContractAddress("");
     const apiUrl = COMPILE_CAIRO_CONTRACT_ENDPOINT;
     const payload = {
       code: selectedCode,
@@ -56,9 +61,15 @@ export default function BottomLeft() {
           </AccordionContent>
         </AccordionItem>
         <AccordionItem value="item-2">
+          <AccordionTrigger>DECLARE AND DEPLOY</AccordionTrigger>
+          <AccordionContent>
+            <DeclareAndDeploy />
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="item-3">
           <AccordionTrigger>SIMULATE</AccordionTrigger>
           <AccordionContent>
-            <WalletConnect />
+            <Simulate />
           </AccordionContent>
         </AccordionItem>
       </Accordion>

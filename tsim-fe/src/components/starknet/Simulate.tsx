@@ -1,24 +1,10 @@
 "use client";
 import { useWorkspace } from "@/components/simulator/Context";
 import { useState, useEffect } from "react";
-import {
-  Abi,
-  Call,
-  selector,
-  stark,
-  ArraySignatureType,
-  AccountInvocations,
-  TransactionType,
-  RpcProvider,
-  Signer,
-  InvocationsSignerDetails,
-  CairoVersion,
-  constants,
-} from "starknet";
+import { Abi, Invocations, TransactionType } from "starknet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { StarknetWindowObject } from "starknetkit";
-import { getAbi } from "./decoder";
+import { decodeTrace } from "./decoder";
 
 type Function = {
   read: { name: string; inputs: any; outputs: any; state_mutability: string }[];
@@ -30,8 +16,8 @@ type Function = {
   }[];
 };
 
-const Simulate = ({ connection }: { connection: StarknetWindowObject }) => {
-  const { compilationResult } = useWorkspace();
+const Simulate = () => {
+  const { account, contractAddress, compilationResult } = useWorkspace();
   const [simulationResult, setSimulationResult] = useState<string>("");
   const [functions, setFunctions] = useState<Function>({
     read: [],
@@ -53,100 +39,28 @@ const Simulate = ({ connection }: { connection: StarknetWindowObject }) => {
     functionName: string,
     calldata: string[]
   ) => {
-    const provider = new RpcProvider({
-      nodeUrl: "https://free-rpc.nethermind.io/sepolia-juno/",
-    });
-
-    const walletAddress = connection?.selectedAddress;
-    console.log(walletAddress);
-    const nonce = await provider.getNonceForAddress(walletAddress!);
-    console.log(nonce);
-    const chainId = await connection?.account.provider.chainId;
-    const maxFee = "0x0";
-    const version = 1;
-    const cairoVersion = "1";
-
-    const entrypoint = selector.getSelectorFromName(functionName);
-
-    calldata = [
-      "0x1", // no of transactions
-      "0x6cc238a12493cb59fb085754fdcc021dec48c41108602d02ce6191d37613b1d", // contract address
-      "0x362398bec32bc0ebb411203221a35a0301193a96f317ebe5e40be9f60d15320",
-      "0x1", // no of inputs
-      "0x1", // calldata
-    ];
-
-    const call: Call = {
-      contractAddress:
-        "0x6cc238a12493cb59fb085754fdcc021dec48c41108602d02ce6191d37613b1d",
-      entrypoint:
-        "0x362398bec32bc0ebb411203221a35a0301193a96f317ebe5e40be9f60d15320",
-      calldata: {
-        amount: "0x1",
-      },
-    };
-
-    const signature = await signTransaction(
-      walletAddress!,
-      nonce,
-      maxFee,
-      version,
-      chainId,
-      cairoVersion,
-      call
-    );
-
-    const invocation: AccountInvocations = [
+    const invocation: Invocations = [
       {
         type: TransactionType.INVOKE,
-        version,
-        nonce,
-        maxFee,
+        contractAddress,
+        entrypoint: functionName,
         calldata,
-        signature,
-        contractAddress: walletAddress!,
       },
     ];
 
     const simulateTransactionOptions = {
       blockIdentifier: "latest",
-      skipFeeCharge: true,
     };
 
-    const simulation = await provider.simulateTransaction(
+    const simulation = await account?.simulateTransaction(
       invocation,
       simulateTransactionOptions
     );
     console.log(simulation);
-  };
-
-  const signTransaction = async (
-    walletAddress: string,
-    nonce: string,
-    maxFee: string,
-    version: number,
-    chainId: constants.StarknetChainId,
-    cairoVersion: CairoVersion,
-    call: Call
-  ): Promise<ArraySignatureType> => {
-    const signerDetails = {
-      walletAddress,
-      nonce,
-      maxFee,
-      version,
-      chainId,
-      cairoVersion,
-    };
-
-    const signer = connection.account.signer;
-    console.log(call);
-    console.log(signerDetails);
-    console.log(signer.pk);
-    const signature = await signer.signTransaction([call], signerDetails);
-
-    const formatedSignature = stark.formatSignature(signature);
-    console.log(formatedSignature);
-    return formatedSignature;
+    if (simulation) {
+      const trace = await decodeTrace(simulation[0].transaction_trace);
+      console.log(trace);
+    }
   };
 
   const getFunctions = (abi: Abi): Function => {
@@ -236,16 +150,16 @@ const Simulate = ({ connection }: { connection: StarknetWindowObject }) => {
                     </div>
                   ))}
                 </div>
+                <Button
+                  onClick={() => {
+                    simulateTransaction(f.name, ["0x1"]); // TODO: replace with actual inputs
+                  }}
+                >
+                  Simulate
+                </Button>
               </div>
             ))}
           </div>
-          <Button
-            onClick={() => {
-              simulateTransaction("increase_balance", ["0x1"]);
-            }}
-          >
-            Simulate
-          </Button>
         </TabsContent>
       </Tabs>
     </div>

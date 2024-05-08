@@ -46,3 +46,7 @@ export const DEFAULT_WORKSPACE_TREE: Workspace = {
 const API_URL = "http://127.0.0.1:8080";
 export const COMPILE_CAIRO_CONTRACT_ENDPOINT = `${API_URL}/compile_contract`;
 export const COMPILE_CAIRO_ENDPOINT = `${API_URL}/compile`;
+
+export const NETHERMIND_DEVNET_URL =
+  "https://starknet-remix-devnet.nethermind.io";
+export const PREDEPLOYED_ACCOUNTS_ENDPOINT = `${NETHERMIND_DEVNET_URL}/predeployed_accounts`;
