@@ -10,6 +10,49 @@ import {
 import { Button } from "@/components/ui/button";
 import { COMPILE_CAIRO_CONTRACT_ENDPOINT } from "./constants";
 import { Simulate, DeclareAndDeploy } from "@/components/starknet";
+import { Abi } from "starknet";
+import { type Function} from "../starknet/Simulate";
+
+const getFunctions = (abi: Abi): Function => {
+  return abi.reduce(
+    (acc, f) => {
+      if (
+        f.type === "function" ||
+        (f.type === "interface" &&
+          f.items.some((item: { type: string }) => item.type === "function"))
+      ) {
+        const functions =
+          f.type === "function"
+            ? [f]
+            : f.items.filter(
+              (item: { type: string }) => item.type === "function"
+            );
+        functions.forEach(
+          (func: {
+            name: string;
+            inputs: any;
+            outputs: any;
+            state_mutability: string;
+          }) => {
+            const funcObject = {
+              name: func.name,
+              inputs: func.inputs,
+              outputs: func.outputs,
+              state_mutability: func.state_mutability,
+            };
+            if (func.state_mutability === "view") {
+              acc.read.push(funcObject);
+            } else {
+              acc.write.push(funcObject);
+            }
+          }
+        );
+      }
+      return acc;
+    },
+    { read: [], write: [] }
+  );
+};
 
 export default function BottomLeft() {
   const {
@@ -17,6 +60,8 @@ export default function BottomLeft() {
     selectedFileName,
     setCompilationResult,
     setContractAddress,
+    setFunctions,
+    functions
   } = useWorkspace();
 
   const compileCode = async () => {
@@ -44,6 +89,17 @@ export default function BottomLeft() {
       const data = await response.json();
       console.log("Compilation successful:", data);
       setCompilationResult(JSON.stringify(data, null, 2));
+      
+      let compilationResult =  JSON.stringify(data, null, 2);
+
+      if (compilationResult) {
+        const abi =
+          JSON.parse(compilationResult).cairo_sierra.sierra_contract_class.abi;
+  
+        if (abi) {
+          setFunctions(getFunctions(abi));
+        }
+      }
     } catch (error) {
       console.error("Failed to compile:", error);
     }
@@ -69,7 +125,7 @@ export default function BottomLeft() {
         <AccordionItem value="item-3">
           <AccordionTrigger>SIMULATE</AccordionTrigger>
           <AccordionContent>
-            <Simulate />
+            <Simulate functions={functions} />
           </AccordionContent>
         </AccordionItem>
       </Accordion>
