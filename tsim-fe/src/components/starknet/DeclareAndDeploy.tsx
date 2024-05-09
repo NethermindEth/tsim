@@ -48,6 +48,7 @@ const DeclareAndDeploy = () => {
 
   const getAccounts = async () => {
     const response = await fetch(PREDEPLOYED_ACCOUNTS_ENDPOINT);
+    // const response = await fetch("http://127.0.0.1:5050/predeployed_accounts");
     const accounts = await response.json();
     setPreDeployedAccounts(accounts);
     return accounts;
@@ -62,6 +63,9 @@ const DeclareAndDeploy = () => {
     console.log("PreDeployed Account: ", preDeployedAccount);
     console.log("Account: ", account);
     
+    // const provider = new RpcProvider({
+    //   nodeUrl: "http://127.0.0.1:5050",
+    // });
     const provider = new RpcProvider({
       nodeUrl: NETHERMIND_DEVNET_URL,
     });

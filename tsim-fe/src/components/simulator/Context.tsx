@@ -41,6 +41,7 @@ interface WorkspaceContextType {
   contractAddress: string;
   account: Account | undefined;
   functions: Function | undefined;
+  trace: any | undefined;
   setWorkspaces: (workspaces: WorkspaceType[]) => void;
   setSelectedWorkspace: (index: number) => void;
   setSelectedCode: (code: string) => void;
@@ -49,6 +50,7 @@ interface WorkspaceContextType {
   setContractAddress: (address: string) => void;
   setAccount: (account: Account) => void;
   setFunctions: (functions: Function) => void;
+  setTrace: (trace: any) => void;
 }
 
 const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
@@ -71,6 +73,7 @@ export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({
     read: [],
     write: [],
   });
+  const [trace, setTrace] = useState();
 
   // useEffect(() => {
   //   if (compilationResult) {
@@ -94,6 +97,7 @@ export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({
         contractAddress,
         account,
         functions,
+        trace,
         setWorkspaces,
         setSelectedWorkspace,
         setSelectedCode,
@@ -101,7 +105,8 @@ export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({
         setCompilationResult,
         setContractAddress,
         setAccount,
-        setFunctions
+        setFunctions,
+        setTrace
       }}
     >
       {children}

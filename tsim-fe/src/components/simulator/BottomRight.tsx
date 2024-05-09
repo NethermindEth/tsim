@@ -13,7 +13,7 @@ export default function BottomRight() {
   const [sierra, setSierra] = useState("");
   const [casm, setCasm] = useState("");
   const [simulation, setSimulation] = useState("");
-  const { compilationResult } = useWorkspace();
+  const { compilationResult, trace } = useWorkspace();
 
   useEffect(() => {
     if (!compilationResult) {
@@ -92,9 +92,7 @@ export default function BottomRight() {
         </TabsContent>
         <TabsContent value="simulation">
           <div>
-
-            <p>Simulation content...</p>
-            <Simulation trace={demoTrace} />
+            {trace ?  <Simulation trace={trace} /> : <div>No transaction trace</div>}
           </div>
         </TabsContent>
       </Tabs>
@@ -239,30 +237,45 @@ const demoTrace = {
 
 export const Simulation = ({ trace }: { trace: typeof demoTrace }) => {
   return (
-    trace.internal_calls.map((call) => {
-      return (
-        <div>
-          <p>Contract: {call.contractAddress}</p>
-          <h2>Function: <Badge color="indigo" ><span className=" text-lg">{call.functionName}</span></Badge></h2>
-          <p>Inputs:
-          </p>
-          {
-            call.inputs.map((input) => {
-              return (<div>
-                <p>{input.name}: {input.value}</p>
-              </div>)
-            })
-          }
-
-          <div>
-            {
-              call.internal_calls && call.internal_calls.map(
-                (call) => <div>{call}</div>
-              )
-            }
-          </div>
-        </div>
-      );
-    })
+    <div className="p-4">
+      {/* // Function Name */}
+      <Badge color="indigo"> <h2 className="text-base p-1 ">{trace.functionName}</h2></Badge>
+      <div className="p-2 border border-gray-300">
+        {/* // Inputs  */}
+        {trace.inputs && trace.inputs.map(
+          (input, index) =>
+            <div className="p-4 " key={index}>
+              <Badge color="green"><h2 className="text-base p-1 ">{input.name}</h2></Badge> : {
+                Array.isArray(input.value[0]) ? (
+                  input.value.map((inpu, inpuindex) => {
+                    return (
+                      <div className="p-4 " key={inpuindex}>
+                        {
+                          Array.isArray(inpu) && inpu.map(
+                            (inp) => <div className="text-sm"> <Badge color="fuchsia">{inp.name}</Badge> : {inp.value.toString()} </div>
+                          )
+                        }
+                        {!Array.isArray(inpu) && <div className="text-sm"> input.value.toString() </div>}
+  
+  
+  
+                        {/* {inpu.map((inp) => <div className="text-sm"> <Badge color="fuchsia">{inp.name}</Badge>: {inp.value.toString()}</div>)} */}
+                      </div>
+                    )
+                  }
+                )
+                ) : (<div> {input.value } </div>)
+              }
+            </div>
+        )
+        }
+        {/* {trace.outputs && trace.outputs.map((output, index) => <div key={index}>{output.name}: {output.value.toString()}</div>)} */}
+      </div>
+      {
+        trace.internal_calls && trace.internal_calls.map(
+          (call) => <Simulation trace={call as any} />
+        )
+      }
+    </div>
   )
 }
