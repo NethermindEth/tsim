@@ -2,6 +2,35 @@ import React, { createContext, useContext, useState, ReactNode } from "react";
 import { FileItemProps, Workspace as WorkspaceType } from "./types";
 import { DEFAULT_WORKSPACE_TREE } from "./constants";
 import { Account } from "starknet";
+import { type Function } from '../starknet/Simulate'
+
+const initialCode = 
+`#[starknet::interface]
+pub trait IHelloStarknet<TContractState> {
+    fn increase_balance(ref self: TContractState, amount: felt252);
+    fn get_balance(self: @TContractState) -> felt252;
+}
+
+#[starknet::contract]
+mod HelloStarknet {
+    #[storage]
+    struct Storage {
+        balance: felt252, 
+    }
+
+    #[abi(embed_v0)]
+    impl HelloStarknetImpl of super::IHelloStarknet<ContractState> {
+        fn increase_balance(ref self: ContractState, amount: felt252) {
+            assert(amount != 0, 'Amount cannot be 0');
+            self.balance.write(self.balance.read() + amount);
+        }
+
+        fn get_balance(self: @ContractState) -> felt252 {
+            self.balance.read()
+        }
+    }
+}
+`
 
 interface WorkspaceContextType {
   workspaces: WorkspaceType[];
@@ -11,6 +40,7 @@ interface WorkspaceContextType {
   compilationResult: string;
   contractAddress: string;
   account: Account | undefined;
+  functions: Function | undefined;
   setWorkspaces: (workspaces: WorkspaceType[]) => void;
   setSelectedWorkspace: (index: number) => void;
   setSelectedCode: (code: string) => void;
@@ -18,6 +48,7 @@ interface WorkspaceContextType {
   setCompilationResult: (result: string) => void;
   setContractAddress: (address: string) => void;
   setAccount: (account: Account) => void;
+  setFunctions: (functions: Function) => void;
 }
 
 const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
@@ -31,11 +62,26 @@ export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({
     DEFAULT_WORKSPACE_TREE,
   ]);
   const [selectedWorkspace, setSelectedWorkspace] = useState<number>(0);
-  const [selectedCode, setSelectedCode] = useState<string>("");
+  const [selectedCode, setSelectedCode] = useState<string>(initialCode);
   const [selectedFileName, setSelectedFileName] = useState<string>("Balance");
   const [compilationResult, setCompilationResult] = useState<string>("");
   const [contractAddress, setContractAddress] = useState<string>("");
   const [account, setAccount] = useState<Account>();
+  const [functions, setFunctions] = useState<Function>({
+    read: [],
+    write: [],
+  });
+
+  // useEffect(() => {
+  //   if (compilationResult) {
+  //     const abi =
+  //       JSON.parse(compilationResult).cairo_sierra.sierra_contract_class.abi;
+
+  //     if (abi) {
+  //       setFunctions(getFunctions(abi));
+  //     }
+  //   }
+  // }, [compilationResult]);
 
   return (
     <WorkspaceContext.Provider
@@ -47,6 +93,7 @@ export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({
         compilationResult,
         contractAddress,
         account,
+        functions,
         setWorkspaces,
         setSelectedWorkspace,
         setSelectedCode,
@@ -54,6 +101,7 @@ export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({
         setCompilationResult,
         setContractAddress,
         setAccount,
+        setFunctions
       }}
     >
       {children}

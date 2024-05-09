@@ -1,39 +1,25 @@
 "use client";
 import { useWorkspace } from "@/components/simulator/Context";
-import { useState, useEffect } from "react";
-import { Abi, Invocations, TransactionType } from "starknet";
+import { useState, useEffect, useRef } from "react";
+import { Abi, Invocations, Result, TransactionType } from "starknet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { decodeTrace } from "./decoder";
+import { Input } from "../ui/input";
 
-type Function = {
+export type Function = {
   read: { name: string; inputs: any; outputs: any; state_mutability: string }[];
   write: {
-    name: string;
+    name: string; 
     inputs: any;
     outputs: any;
     state_mutability: string;
   }[];
 };
 
-const Simulate = () => {
-  const { account, contractAddress, compilationResult } = useWorkspace();
+const Simulate = ({functions}: {functions?: Function}) => {
+  const { account, contractAddress } = useWorkspace();
   const [simulationResult, setSimulationResult] = useState<string>("");
-  const [functions, setFunctions] = useState<Function>({
-    read: [],
-    write: [],
-  });
-
-  useEffect(() => {
-    if (compilationResult) {
-      const abi =
-        JSON.parse(compilationResult).cairo_sierra.sierra_contract_class.abi;
-
-      if (abi) {
-        setFunctions(getFunctions(abi));
-      }
-    }
-  }, [compilationResult]);
 
   const simulateTransaction = async (
     functionName: string,
@@ -52,57 +38,25 @@ const Simulate = () => {
       blockIdentifier: "latest",
     };
 
+    //FIXME: Should remove later
+    console.log("Account: " + account);
+
     const simulation = await account?.simulateTransaction(
       invocation,
       simulateTransactionOptions
     );
+    console.log("Simulation: ");
     console.log(simulation);
     if (simulation) {
       const trace = await decodeTrace(simulation[0].transaction_trace);
+      console.log("Trace: ");
       console.log(trace);
     }
   };
 
-  const getFunctions = (abi: Abi): Function => {
-    return abi.reduce(
-      (acc, f) => {
-        if (
-          f.type === "function" ||
-          (f.type === "interface" &&
-            f.items.some((item: { type: string }) => item.type === "function"))
-        ) {
-          const functions =
-            f.type === "function"
-              ? [f]
-              : f.items.filter(
-                  (item: { type: string }) => item.type === "function"
-                );
-          functions.forEach(
-            (func: {
-              name: string;
-              inputs: any;
-              outputs: any;
-              state_mutability: string;
-            }) => {
-              const funcObject = {
-                name: func.name,
-                inputs: func.inputs,
-                outputs: func.outputs,
-                state_mutability: func.state_mutability,
-              };
-              if (func.state_mutability === "view") {
-                acc.read.push(funcObject);
-              } else {
-                acc.write.push(funcObject);
-              }
-            }
-          );
-        }
-        return acc;
-      },
-      { read: [], write: [] }
-    );
-  };
+  if (!functions) {
+    return null;
+  }
 
   return (
     <div className="p-2">
@@ -114,51 +68,71 @@ const Simulate = () => {
         <TabsContent value="read">
           <p>Test</p>
           <div>
-            {functions.read.map((f, i) => (
-              <div key={i}>
-                <p className="font-bold">{f.name}</p>
-                <div>
-                  {f.inputs?.map((input: any, i: number) => (
-                    <div key={i}>
-                      <input
-                        placeholder={input.name}
-                        type="text"
-                        className="p-2"
-                      />
-                      {/* TODO: input type */}
-                    </div>
-                  ))}
+            {functions.read.map((f, i) => {
+              return (
+                <div key={i}>
+                  <p className="font-bold">{f.name}</p>
+                  <div>
+                    {f.inputs?.map((input: any, i: number) => (
+                      <div key={i}>
+                        <input
+                          placeholder={input.name}
+                          type="text"
+                          className="p-2"
+                        />
+                        {/* TODO: input type */}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </TabsContent>
         <TabsContent value="write">
           <div className="my-2">
-            {functions.write.map((f, i) => (
-              <div key={i}>
-                <p className="font-bold">{f.name}</p>
-                <div>
-                  {f.inputs?.map((input: any, i: number) => (
-                    <div key={i}>
-                      <input
-                        placeholder={input.name}
-                        type="text"
-                        className="p-2"
-                      />
-                      {/* TODO: input type */}
-                    </div>
-                  ))}
+            {functions.write.map((f, i) => {
+              // const [output, setOutput] = useState<Result>();
+              let inputsRefs = f.inputs.map(() => useRef());
+              // let thisInputRef = useRef<HTMLInputElement>(null)
+              return (
+                <div key={i}>
+                  <p className="font-bold">{f.name}</p>
+                  <div>
+                    {
+                      f.inputs?.map((input: any, i_: number) => {
+                        let [value, setValue] = useState<string>("")
+                        return (
+                          <div key={i_ + input}>
+                            <Input
+                              placeholder={input.name}
+                              type="text"
+                              className="p-2"
+                              value={value}
+                              onChange={(e) => setValue(e.target.value)}
+                              ref={inputsRefs[i_]}
+                            />
+                            {/* TODO: input type */}
+                          </div>
+                        )
+                      }
+                    )
+                    }
+                  </div>
+                  <Button
+                    onClick={async () => {
+                      let inputs_ = inputsRefs.map((ref: any) => ref.current?.value);
+                      console.log(inputs_);
+                      simulateTransaction(f.name, inputs_); // TODO: replace with actual inputs
+                    }}
+                  >
+                    Simulate
+                  </Button>
                 </div>
-                <Button
-                  onClick={() => {
-                    simulateTransaction(f.name, ["0x1"]); // TODO: replace with actual inputs
-                  }}
-                >
-                  Simulate
-                </Button>
-              </div>
-            ))}
+              )
+            }
+
+            )}
           </div>
         </TabsContent>
       </Tabs>
