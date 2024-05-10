@@ -50,6 +50,7 @@ const Simulate = ({ functions }: { functions?: Function }) => {
       invocation,
       simulateTransactionOptions
     );
+
     console.log("Simulation: ");
     console.log(simulation);
     if (simulation) {
