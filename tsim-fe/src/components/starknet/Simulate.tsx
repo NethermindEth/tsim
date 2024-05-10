@@ -8,17 +8,22 @@ import { decodeTrace } from "./decoder";
 import { Input } from "../ui/input";
 
 export type Function = {
-  read: { name: string; inputs: any; outputs: any; state_mutability: string }[];
+  read: {
+    name: string;
+    inputs: any;
+    outputs: any;
+    state_mutability: string
+  }[];
   write: {
-    name: string; 
+    name: string;
     inputs: any;
     outputs: any;
     state_mutability: string;
   }[];
 };
 
-const Simulate = ({functions}: {functions?: Function}) => {
-  const { account, contractAddress } = useWorkspace();
+const Simulate = ({ functions }: { functions?: Function }) => {
+  const { account, contractAddress, trace, setTrace } = useWorkspace();
   const [simulationResult, setSimulationResult] = useState<string>("");
 
   const simulateTransaction = async (
@@ -45,14 +50,21 @@ const Simulate = ({functions}: {functions?: Function}) => {
       invocation,
       simulateTransactionOptions
     );
+
     console.log("Simulation: ");
     console.log(simulation);
     if (simulation) {
       const trace = await decodeTrace(simulation[0].transaction_trace);
       console.log("Trace: ");
       console.log(trace);
+      setTrace(trace)
     }
   };
+
+
+
+
+
 
   if (!functions) {
     return null;
@@ -73,8 +85,8 @@ const Simulate = ({functions}: {functions?: Function}) => {
                 <div key={i}>
                   <p className="font-bold">{f.name}</p>
                   <div>
-                    {f.inputs?.map((input: any, i: number) => (
-                      <div key={i}>
+                    {f.inputs?.map((input: any, i_: number) => (
+                      <div key={i_}>
                         <input
                           placeholder={input.name}
                           type="text"
@@ -101,7 +113,7 @@ const Simulate = ({functions}: {functions?: Function}) => {
                   <div>
                     {
                       f.inputs?.map((input: any, i_: number) => {
-                        let [value, setValue] = useState<string>("")
+                        let [value, setValue] = useState<string | number >('')
                         return (
                           <div key={i_ + input}>
                             <Input
@@ -116,14 +128,14 @@ const Simulate = ({functions}: {functions?: Function}) => {
                           </div>
                         )
                       }
-                    )
+                      )
                     }
                   </div>
                   <Button
                     onClick={async () => {
                       let inputs_ = inputsRefs.map((ref: any) => ref.current?.value);
                       console.log(inputs_);
-                      simulateTransaction(f.name, inputs_); // TODO: replace with actual inputs
+                      simulateTransaction(f.name, inputs_).catch((err) => console.log("Sim Error:" +err)); // TODO: replace with actual inputs
                     }}
                   >
                     Simulate
