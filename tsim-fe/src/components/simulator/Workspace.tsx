@@ -220,8 +220,12 @@ const Modal = ({
             </DialogClose>
             <Button
               onClick={(e) => {
+                if(input==="")
+                  setError("Field Cannot be empty")
+                else
+                 { setError(null)
                 handleSubmit(input);
-                setIsModalOpen(false);
+                setIsModalOpen(false);}
               }}
             >
               Create
