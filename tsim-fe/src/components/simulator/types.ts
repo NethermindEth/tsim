@@ -16,3 +16,8 @@ export type PreDeployedAccount = {
   private_key: string;
   public_key: string;
 };
+
+export type SimulationParameters = {
+  functionName: string;
+  calldata: string[];
+};

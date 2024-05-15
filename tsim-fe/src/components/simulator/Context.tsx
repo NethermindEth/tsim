@@ -1,11 +1,10 @@
 import React, { createContext, useContext, useState, ReactNode } from "react";
-import { FileItemProps, Workspace as WorkspaceType } from "./types";
+import { SimulationParameters, Workspace as WorkspaceType } from "./types";
 import { DEFAULT_WORKSPACE_TREE } from "./constants";
 import { Account } from "starknet";
-import { type Function } from '../starknet/Simulate'
+import { type Function } from "../starknet/Simulate";
 
-const initialCode = 
-`#[starknet::interface]
+const initialCode = `#[starknet::interface]
 pub trait IHelloStarknet<TContractState> {
     fn increase_balance(ref self: TContractState, amount: felt252);
     fn get_balance(self: @TContractState) -> felt252;
@@ -30,7 +29,7 @@ mod HelloStarknet {
         }
     }
 }
-`
+`;
 
 interface WorkspaceContextType {
   workspaces: WorkspaceType[];
@@ -41,7 +40,10 @@ interface WorkspaceContextType {
   contractAddress: string;
   account: Account | undefined;
   functions: Function | undefined;
+  location: any | undefined;
   trace: any | undefined;
+  traceError: string | undefined;
+  simulationParameters: SimulationParameters | undefined;
   setWorkspaces: (workspaces: WorkspaceType[]) => void;
   setSelectedWorkspace: (index: number) => void;
   setSelectedCode: (code: string) => void;
@@ -50,7 +52,10 @@ interface WorkspaceContextType {
   setContractAddress: (address: string) => void;
   setAccount: (account: Account) => void;
   setFunctions: (functions: Function) => void;
+  setLocation: (location: any) => void;
   setTrace: (trace: any) => void;
+  setTraceError: (traceError: string) => void;
+  setSimulationParameters: (simulationParameters: SimulationParameters) => void;
 }
 
 const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
@@ -73,18 +78,11 @@ export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({
     read: [],
     write: [],
   });
+  const [location, setLocation] = useState<any>();
   const [trace, setTrace] = useState();
-
-  // useEffect(() => {
-  //   if (compilationResult) {
-  //     const abi =
-  //       JSON.parse(compilationResult).cairo_sierra.sierra_contract_class.abi;
-
-  //     if (abi) {
-  //       setFunctions(getFunctions(abi));
-  //     }
-  //   }
-  // }, [compilationResult]);
+  const [traceError, setTraceError] = useState("");
+  const [simulationParameters, setSimulationParameters] =
+    useState<SimulationParameters>();
 
   return (
     <WorkspaceContext.Provider
@@ -97,7 +95,10 @@ export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({
         contractAddress,
         account,
         functions,
+        location,
         trace,
+        traceError,
+        simulationParameters,
         setWorkspaces,
         setSelectedWorkspace,
         setSelectedCode,
@@ -106,7 +107,10 @@ export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({
         setContractAddress,
         setAccount,
         setFunctions,
-        setTrace
+        setLocation,
+        setTrace,
+        setTraceError,
+        setSimulationParameters,
       }}
     >
       {children}

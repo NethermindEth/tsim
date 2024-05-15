@@ -16,10 +16,14 @@ import {
 } from "@/components/simulator/constants";
 import { PreDeployedAccount } from "@/components/simulator/types";
 
-
 const DeclareAndDeploy = () => {
-  const { compilationResult, contractAddress, setContractAddress, setAccount , account } =
-    useWorkspace();
+  const {
+    compilationResult,
+    contractAddress,
+    setContractAddress,
+    setAccount,
+    account,
+  } = useWorkspace();
   const [preDeployedAccounts, setPreDeployedAccounts] = useState<
     PreDeployedAccount[]
   >([]);
@@ -55,34 +59,28 @@ const DeclareAndDeploy = () => {
   };
 
   const declareAndDeploy = async () => {
-
     const preDeployedAccounts = await getAccounts();
     // TODO: Allow user to select account
-    const preDeployedAccount = preDeployedAccounts[0];
+    const preDeployedAccount = preDeployedAccounts[5];
 
-    console.log("PreDeployed Account: ", preDeployedAccount);
-    console.log("Account: ", account);
-    
-    // const provider = new RpcProvider({
-    //   nodeUrl: "http://127.0.0.1:5050",
-    // });
     const provider = new RpcProvider({
       nodeUrl: NETHERMIND_DEVNET_URL,
     });
-    
+
     const accounts = new Account(
       provider,
       preDeployedAccount.address,
       preDeployedAccount.private_key
     );
     setAccount(accounts);
-    
+    console.log("Account: ", account);
+    console.log("Contract: ", sierra);
+    console.log("Casm: ", casm);
     const deployResponse = await accounts.declareAndDeploy({
       contract: sierra!,
       casm: casm,
     });
     setContractAddress(deployResponse.deploy.address);
-    console.log("Account: ", account);
   };
 
   return (

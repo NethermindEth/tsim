@@ -32,7 +32,7 @@ const StarknetAbiTypes = [
   "core::byte_array::ByteArray",
 ];
 
-export const decodeTrace = async (trace: any) => {
+export const decodeTrace = async (trace: any, rpcUrl?: string) => {
   const {
     execute_invocation: executeInvocation,
     validate_invocation: validateInvocation,
@@ -43,17 +43,25 @@ export const decodeTrace = async (trace: any) => {
     return revertReason;
   }
 
-  return await decodeInvocation(executeInvocation);
+  return await decodeInvocation(executeInvocation, rpcUrl);
 };
 
-const decodeInvocation = async (invocation: any): Promise<any> => {
+const decodeInvocation = async (
+  invocation: any,
+  rpcUrl?: string
+): Promise<any> => {
   const {
     contract_address: contractAddress,
     calldata,
+    call_type: callType,
     entry_point_selector: entryPointSelector,
     calls = [],
   } = invocation;
-  const abi = await getAbi(contractAddress);
+
+  const provider = new RpcProvider({
+    nodeUrl: NETHERMIND_DEVNET_URL,
+  });
+  const abi = await getAbi(contractAddress, provider);
   const selectors = getSelectors(abi);
   const functionName = getFunctionName(entryPointSelector, selectors);
 
@@ -67,6 +75,7 @@ const decodeInvocation = async (invocation: any): Promise<any> => {
   const functionInvocationTrace = {
     contractAddress,
     functionName,
+    callType,
     inputs,
     outputs,
     internal_calls: await Promise.all(calls.map(decodeInvocation)),
@@ -164,10 +173,10 @@ const decodePuts = (abi: Abi, call: string[], puts: CallPuts) => {
   };
 };
 
-export const getAbi = async (address: string): Promise<Abi> => {
-  const provider = new RpcProvider({
-    nodeUrl: NETHERMIND_DEVNET_URL,
-  });
+export const getAbi = async (
+  address: string,
+  provider: RpcProvider
+): Promise<Abi> => {
   const classHash = await provider.getClassHashAt(address);
   let abi = (await provider.getClass(classHash)).abi;
   if (isProxy(abi)) {

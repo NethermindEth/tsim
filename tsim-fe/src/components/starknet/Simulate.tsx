@@ -12,7 +12,7 @@ export type Function = {
     name: string;
     inputs: any;
     outputs: any;
-    state_mutability: string
+    state_mutability: string;
   }[];
   write: {
     name: string;
@@ -23,13 +23,26 @@ export type Function = {
 };
 
 const Simulate = ({ functions }: { functions?: Function }) => {
-  const { account, contractAddress, trace, setTrace } = useWorkspace();
-  const [simulationResult, setSimulationResult] = useState<string>("");
+  const {
+    account,
+    contractAddress,
+    trace,
+    setTrace,
+    setTraceError,
+    setSimulationParameters,
+  } = useWorkspace();
 
   const simulateTransaction = async (
     functionName: string,
     calldata: string[]
   ) => {
+    setTraceError("");
+    const simulationParameters = {
+      functionName,
+      calldata,
+    };
+    setSimulationParameters(simulationParameters);
+
     const invocation: Invocations = [
       {
         type: TransactionType.INVOKE,
@@ -43,28 +56,30 @@ const Simulate = ({ functions }: { functions?: Function }) => {
       blockIdentifier: "latest",
     };
 
-    //FIXME: Should remove later
-    console.log("Account: " + account);
+    try {
+      const simulation = await account?.simulateTransaction(
+        invocation,
+        simulateTransactionOptions
+      );
 
-    const simulation = await account?.simulateTransaction(
-      invocation,
-      simulateTransactionOptions
-    );
-
-    console.log("Simulation: ");
-    console.log(simulation);
-    if (simulation) {
-      const trace = await decodeTrace(simulation[0].transaction_trace);
-      console.log("Trace: ");
-      console.log(trace);
-      setTrace(trace)
+      console.log("Simulation: ");
+      console.log(simulation);
+      if (simulation) {
+        console.log("simulation: " + simulation[0].transaction_trace);
+        const trace = await decodeTrace(simulation[0].transaction_trace);
+        setTrace(trace);
+      }
+    } catch (err) {
+      const error = err as any;
+      const regex = /revert_error":"(.*)/;
+      const matches = regex.exec(error);
+      if (matches && matches[1]) {
+        setTraceError(matches[1]);
+      } else {
+        setTraceError("An unexpected error occurred.");
+      }
     }
   };
-
-
-
-
-
 
   if (!functions) {
     return null;
@@ -97,7 +112,7 @@ const Simulate = ({ functions }: { functions?: Function }) => {
                     ))}
                   </div>
                 </div>
-              )
+              );
             })}
           </div>
         </TabsContent>
@@ -111,40 +126,38 @@ const Simulate = ({ functions }: { functions?: Function }) => {
                 <div key={i}>
                   <p className="font-bold">{f.name}</p>
                   <div>
-                    {
-                      f.inputs?.map((input: any, i_: number) => {
-                        let [value, setValue] = useState<string | number >('')
-                        return (
-                          <div key={i_ + input}>
-                            <Input
-                              placeholder={input.name}
-                              type="text"
-                              className="p-2"
-                              value={value}
-                              onChange={(e) => setValue(e.target.value)}
-                              ref={inputsRefs[i_]}
-                            />
-                            {/* TODO: input type */}
-                          </div>
-                        )
-                      }
-                      )
-                    }
+                    {f.inputs?.map((input: any, i_: number) => {
+                      let [value, setValue] = useState<string | number>("");
+                      return (
+                        <div key={i_ + input}>
+                          <Input
+                            placeholder={input.name}
+                            type="text"
+                            className="p-2"
+                            value={value}
+                            onChange={(e) => setValue(e.target.value)}
+                            ref={inputsRefs[i_]}
+                          />
+                          {/* TODO: input type */}
+                        </div>
+                      );
+                    })}
                   </div>
                   <Button
                     onClick={async () => {
-                      let inputs_ = inputsRefs.map((ref: any) => ref.current?.value);
-                      console.log(inputs_);
-                      simulateTransaction(f.name, inputs_).catch((err) => console.log("Sim Error:" +err)); // TODO: replace with actual inputs
+                      let inputs_ = inputsRefs.map(
+                        (ref: any) => ref.current?.value
+                      );
+                      simulateTransaction(f.name, inputs_).catch((err) =>
+                        console.log("Sim Error:" + err)
+                      ); // TODO: replace with actual inputs
                     }}
                   >
                     Simulate
                   </Button>
                 </div>
-              )
-            }
-
-            )}
+              );
+            })}
           </div>
         </TabsContent>
       </Tabs>
