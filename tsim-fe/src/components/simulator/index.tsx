@@ -64,7 +64,7 @@ export default function Home() {
             height="100%"
             defaultLanguage="rust"
             value={selectedCode}
-            onChange={(value) => setSelectedCode(value!)}
+            onChange={(value:any) => setSelectedCode(value!)}
             theme="vs-dark"
             onMount={handleEditorMount}
           />

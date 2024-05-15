@@ -20,10 +20,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const FileItem: React.FC<FileItemProps> = ({ name, type, children, code }) => {
+const FileItem: React.FC<FileItemProps> = ({
+  name,
+  type,
+  children,
+  code,
+  id,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isSelected, setIsSelected] = useState(false);
-  const { setSelectedCode } = useWorkspace();
+  const { setSelectedCode, setSelectedFileName, setSelectedFileId } =
+    useWorkspace();
 
   const Icon = type === "folder" ? AiFillFolder : AiFillFile;
 
@@ -37,6 +44,8 @@ const FileItem: React.FC<FileItemProps> = ({ name, type, children, code }) => {
               setSelectedCode(code!);
             }
             setIsOpen(!isOpen);
+            setSelectedFileId(id);
+            setSelectedFileName(name);
           }}
         >
           {isOpen && type === "folder" ? <AiFillFolderOpen /> : <Icon />}
@@ -46,7 +55,7 @@ const FileItem: React.FC<FileItemProps> = ({ name, type, children, code }) => {
       <div className="pl-4">
         {children &&
           isOpen &&
-          children.map((child) => <FileItem key={child.name} {...child} />)}
+          children.map((child) => <FileItem key={child.id} {...child} />)}
       </div>
     </div>
   );
@@ -54,9 +63,15 @@ const FileItem: React.FC<FileItemProps> = ({ name, type, children, code }) => {
 
 const Workspace: React.FC = () => {
   const [isOpen, setIsOpen] = useState(true);
-  const { selectedWorkspace, setSelectedWorkspace, workspaces, setWorkspaces } =
-    useWorkspace();
+  const {
+    selectedWorkspace,
+    setSelectedWorkspace,
+    workspaces,
+    createNewWorkspace,
+    addFile,
+  } = useWorkspace();
 
+  console.log("HEREDATA",workspaces,workspaces[selectedWorkspace])
   return (
     <div className="">
       <div className="flex items-center justify-between mb-4">
@@ -77,7 +92,9 @@ const Workspace: React.FC = () => {
                   <SelectItem
                     key={index}
                     value={workspace.name}
-                    onClick={() => setSelectedWorkspace(index)}
+                    onClick={() => {
+                      setSelectedWorkspace(index);
+                    }}
                   >
                     {workspace.name}
                   </SelectItem>
@@ -94,12 +111,20 @@ const Workspace: React.FC = () => {
             </Select>
 
             <div className="ml-2 cursor-pointer">
-              <AiOutlineDelete />
+              <AiOutlineDelete
+                onClick={() => {
+                  createNewWorkspace();
+                }}
+              />
             </div>
           </div>
           <div className="flex items-center mb-4">
             <div className="mr-2 cursor-pointer">
-              <AiOutlineFolder />
+              <AiOutlineFolder
+                onClick={() => {
+                  addFile("abc", "folder");
+                }}
+              />
             </div>
             <div className="mr-2 cursor-pointer">
               <AiOutlineFolder />

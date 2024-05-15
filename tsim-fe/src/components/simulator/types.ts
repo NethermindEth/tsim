@@ -1,5 +1,6 @@
 export interface FileItemProps {
   name: string;
+  id:number;
   type: "folder" | "file";
   code?: string;
   children?: FileItemProps[];

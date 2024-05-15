@@ -2,9 +2,11 @@ import { FileItemProps, Workspace } from "./types";
 
 export const DEFAULT_WORKSPACE: FileItemProps = {
   name: "contracts",
+  id:0,
   type: "folder",
   children: [
     {
+      id:1,
       name: "Balance.cairo",
       type: "file",
       code: `
