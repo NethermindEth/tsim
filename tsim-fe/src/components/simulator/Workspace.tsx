@@ -9,8 +9,7 @@ import {
   AiOutlineDelete,
 } from "react-icons/ai";
 import { IoMdArrowDropdown, IoMdAdd } from "react-icons/io";
-import { FileItemProps } from "./types";
-import { DEFAULT_WORKSPACE_TREE } from "./constants";
+import { FileItemProps, Workspace as WorkspaceType } from "./types";
 import { useWorkspace } from "./Context";
 import {
   Select,
@@ -19,26 +18,33 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import CreateNewWorkspace from "./CreateNewWorkspace";
+import { DownloadIcon, UploadIcon } from "lucide-react";
+import CreateNewWorkspaceFolder from "./CreateNewWorkspaceFolder";
+import CreateNewWorkspaceFile from "./CreateNewWorkspaceFile";
 
 const FileItem: React.FC<FileItemProps> = ({ name, type, children, code }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isSelected, setIsSelected] = useState(false);
   const { setSelectedCode } = useWorkspace();
+  // const isSelected = selectedCode === code;
+
+  const handleItemClick = () => {
+    if (type === "file") {
+      setSelectedCode(code || "");
+    }
+    setIsOpen(!isOpen);
+  };
 
   const Icon = type === "folder" ? AiFillFolder : AiFillFile;
 
   return (
-    <div className="items-center my-1 text-gray-300 hover:text-white cursor-pointer">
-      <div className="flex items-center ">
-        <div
-          className="mr-2"
-          onClick={() => {
-            if (type === "file") {
-              setSelectedCode(code!);
-            }
-            setIsOpen(!isOpen);
-          }}
-        >
+    <div
+      className={`items-center my-1 hover:text-white cursor-pointer`}
+      style={{ paddingLeft: `${type === "file" ? "20px" : "0"}` }}
+      onClick={handleItemClick}
+    >
+      <div className="flex items-center">
+        <div className="mr-2">
           {isOpen && type === "folder" ? <AiFillFolderOpen /> : <Icon />}
         </div>
         <span className="text-sm">{name}</span>
@@ -54,7 +60,7 @@ const FileItem: React.FC<FileItemProps> = ({ name, type, children, code }) => {
 
 const Workspace: React.FC = () => {
   const [isOpen, setIsOpen] = useState(true);
-  const { selectedWorkspace, setSelectedWorkspace, workspaces, setWorkspaces } =
+  const { selectedWorkspace, setSelectedWorkspace, workspaces } =
     useWorkspace();
 
   return (
@@ -68,7 +74,13 @@ const Workspace: React.FC = () => {
       {isOpen && (
         <div>
           <div className="flex items-center justify-between mb-2">
-            <Select>
+            <Select
+              onValueChange={(value) => {
+                setSelectedWorkspace(
+                  workspaces.findIndex((w) => w.name === value)
+                );
+              }}
+            >
               <SelectTrigger className="w-full h-8">
                 <SelectValue placeholder={workspaces[selectedWorkspace].name} />
               </SelectTrigger>
@@ -82,14 +94,7 @@ const Workspace: React.FC = () => {
                     {workspace.name}
                   </SelectItem>
                 ))}
-                <SelectItem
-                  value="new"
-                  onClick={() => {
-                    // TODO: Show a popup to create new workspace
-                  }}
-                >
-                  - create a new workspace -
-                </SelectItem>
+                <CreateNewWorkspace />
               </SelectContent>
             </Select>
 
@@ -97,18 +102,14 @@ const Workspace: React.FC = () => {
               <AiOutlineDelete />
             </div>
           </div>
-          <div className="flex items-center mb-4">
-            <div className="mr-2 cursor-pointer">
-              <AiOutlineFolder />
+          <div className="flex items-center gap-2 mb-4">
+            <CreateNewWorkspaceFolder />
+            <CreateNewWorkspaceFile />
+            <div className="cursor-pointer">
+              <UploadIcon className="size-4" />
             </div>
-            <div className="mr-2 cursor-pointer">
-              <AiOutlineFolder />
-            </div>
-            <div className="mr-2 cursor-pointer">
-              <AiOutlineUpload />
-            </div>
-            <div className="mr-2 cursor-pointer">
-              <AiOutlineDownload />
+            <div className="cursor-pointer">
+              <DownloadIcon className="size-4" />
             </div>
           </div>
           <div className="space-y-2">
