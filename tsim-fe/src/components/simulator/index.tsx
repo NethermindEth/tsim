@@ -71,7 +71,7 @@ export default function Home() {
         </div>
       </div>
       {/* Bottom Panel for Tabs */}
-      <div className="flex border-t min-h-[40vh]">
+      <div className="flex border-t max-h-[50vh] min-h-[40vh]">
         <BottomLeft />
         <BottomRight />
       </div>
