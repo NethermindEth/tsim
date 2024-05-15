@@ -112,7 +112,6 @@ const Workspace: React.FC = () => {
               </SelectTrigger>
               <SelectContent
                 onChange={(e) => {
-                  console.log("HIII");
                 }}
               >
                 {workspaces.map((workspace, index) => (
@@ -123,7 +122,6 @@ const Workspace: React.FC = () => {
                 <SelectItem
                   value="new"
                   onSelect={() => {
-                    console.log("HIII");
                     // TODO: Show a popup to create new workspace
                   }}
                 >

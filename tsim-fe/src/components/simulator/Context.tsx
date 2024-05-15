@@ -112,7 +112,6 @@ export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({
       return true;
     } else if (obj.children) return obj.children.some(updateChild(id, code));
   };
-  console.log("Workspace", workspaces, selectedFileId, selectedWorkspace);
   const addChild =
     (id: number, fileData: FileItemProps) => (obj: FileItemProps) => {
       if (obj.id === id) {
