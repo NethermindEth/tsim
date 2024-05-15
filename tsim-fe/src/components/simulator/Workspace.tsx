@@ -71,7 +71,7 @@ const Workspace: React.FC = () => {
     addFile,
   } = useWorkspace();
 
-  console.log("HEREDATA",workspaces,workspaces[selectedWorkspace])
+  console.log("HEREDATA", workspaces, workspaces[selectedWorkspace]);
   return (
     <div className="">
       <div className="flex items-center justify-between mb-4">
@@ -83,25 +83,29 @@ const Workspace: React.FC = () => {
       {isOpen && (
         <div>
           <div className="flex items-center justify-between mb-2">
-            <Select>
+            <Select
+              onValueChange={(e) => {
+                console.log("CGANED");
+                setSelectedWorkspace(Number(e));
+              }}
+            >
               <SelectTrigger className="w-full h-8">
                 <SelectValue placeholder={workspaces[selectedWorkspace].name} />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent
+                onChange={(e) => {
+                  console.log("HIII");
+                }}
+              >
                 {workspaces.map((workspace, index) => (
-                  <SelectItem
-                    key={index}
-                    value={workspace.name}
-                    onClick={() => {
-                      setSelectedWorkspace(index);
-                    }}
-                  >
+                  <SelectItem key={index} value={index.toString()}>
                     {workspace.name}
                   </SelectItem>
                 ))}
                 <SelectItem
                   value="new"
-                  onClick={() => {
+                  onSelect={() => {
+                    console.log("HIII");
                     // TODO: Show a popup to create new workspace
                   }}
                 >

@@ -42,7 +42,7 @@ export const DEFAULT_WORKSPACE: FileItemProps = {
 
 export const DEFAULT_WORKSPACE_TREE: Workspace = {
   name: "default_workspace",
-  children: [DEFAULT_WORKSPACE],
+  children: [{...DEFAULT_WORKSPACE}],
 };
 
 const API_URL = "http://127.0.0.1:8080";

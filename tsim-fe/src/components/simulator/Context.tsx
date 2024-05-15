@@ -12,7 +12,7 @@ import {
   SimulationParameters,
   Workspace as WorkspaceType,
 } from "./types";
-import { DEFAULT_WORKSPACE_TREE } from "./constants";
+import { DEFAULT_WORKSPACE_TREE,DEFAULT_WORKSPACE } from "./constants";
 import { Account } from "starknet";
 import { type Function } from "../starknet/Simulate";
 
@@ -86,8 +86,9 @@ const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
 export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
+  const clone = JSON.parse(JSON.stringify(DEFAULT_WORKSPACE_TREE))
   const [workspaces, setWorkspaces] = useState<WorkspaceType[]>([
-    DEFAULT_WORKSPACE_TREE,
+    clone,
   ]);
   const [selectedWorkspace, setSelectedWorkspace] = useState<number>(0);
   const [nextId,setNextId] = useState<number>(2);
@@ -155,7 +156,8 @@ const saveFile = () => {
 }
 
 const createNewWorkspace = () => {
-  setWorkspaces(prevState=>[...prevState,DEFAULT_WORKSPACE_TREE])
+  const clone = JSON.parse(JSON.stringify(DEFAULT_WORKSPACE_TREE))
+  setWorkspaces(prevState=>[...prevState,clone])
 }
 
   return (
