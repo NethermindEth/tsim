@@ -155,6 +155,9 @@ const saveFile = () => {
   setWorkspaces(newWorkspaces);
 }
 
+useEffect(()=>{
+  saveFile();
+},[selectedCode])
 const createNewWorkspace = () => {
   const clone = JSON.parse(JSON.stringify(DEFAULT_WORKSPACE_TREE))
   setWorkspaces(prevState=>[...prevState,clone])

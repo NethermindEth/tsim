@@ -85,7 +85,6 @@ const Workspace: React.FC = () => {
           <div className="flex items-center justify-between mb-2">
             <Select
               onValueChange={(e) => {
-                console.log("CGANED");
                 setSelectedWorkspace(Number(e));
               }}
             >
