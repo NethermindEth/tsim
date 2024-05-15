@@ -12,7 +12,7 @@ import {
   SimulationParameters,
   Workspace as WorkspaceType,
 } from "./types";
-import { DEFAULT_WORKSPACE_TREE,DEFAULT_WORKSPACE } from "./constants";
+import { DEFAULT_WORKSPACE_TREE, DEFAULT_WORKSPACE } from "./constants";
 import { Account } from "starknet";
 import { type Function } from "../starknet/Simulate";
 
@@ -48,7 +48,6 @@ interface WorkspaceContextType {
   selectedWorkspace: number;
   selectedCode: string;
   selectedFileName: string;
-  currentRoot: string[];
   compilationResult: string;
   contractAddress: string;
   account: Account | undefined;
@@ -57,17 +56,16 @@ interface WorkspaceContextType {
   trace: any | undefined;
   traceError: string | undefined;
   simulationParameters: SimulationParameters | undefined;
-  selectedFileId:number;
+  selectedFileId: number;
 
-  addFile:( name:string,type:"folder"|"file")=>void;
-  saveFile:()=>void;
-  createNewWorkspace:()=>void;
-  
+  addFile: (type: "folder" | "file") => (name: string) => void;
+  saveFile: () => void;
+  createNewWorkspace: (name: string) => void;
+
   setWorkspaces: (workspaces: WorkspaceType[]) => void;
   setSelectedWorkspace: (index: number) => void;
   setSelectedCode: (code: string) => void;
   setSelectedFileName: (fileName: string) => void;
-  setCurrentRoot: Dispatch<SetStateAction<string[]>>;
   setCompilationResult: (result: string) => void;
   setContractAddress: (address: string) => void;
   setAccount: (account: Account) => void;
@@ -76,7 +74,8 @@ interface WorkspaceContextType {
   setTrace: (trace: any) => void;
   setTraceError: (traceError: string) => void;
   setSimulationParameters: (simulationParameters: SimulationParameters) => void;
-  setSelectedFileId:Dispatch<SetStateAction<number>>;
+  setSelectedFileId: Dispatch<SetStateAction<number>>;
+  setSelectedFolder: Dispatch<SetStateAction<number>>;
 }
 
 const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
@@ -86,16 +85,12 @@ const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
 export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const clone = JSON.parse(JSON.stringify(DEFAULT_WORKSPACE_TREE))
-  const [workspaces, setWorkspaces] = useState<WorkspaceType[]>([
-    clone,
-  ]);
+  const clone = JSON.parse(JSON.stringify(DEFAULT_WORKSPACE_TREE));
+  const [workspaces, setWorkspaces] = useState<WorkspaceType[]>([clone]);
   const [selectedWorkspace, setSelectedWorkspace] = useState<number>(0);
-  const [nextId,setNextId] = useState<number>(2);
+  const [nextId, setNextId] = useState<number>(2);
   const [selectedCode, setSelectedCode] = useState<string>(initialCode);
   const [selectedFileName, setSelectedFileName] = useState<string>("Balance");
-  const [selectedFileId, setSelectedFileId] = useState<number>(1);
-  const [currentRoot, setCurrentRoot] = useState<string[]>([]);
   const [compilationResult, setCompilationResult] = useState<string>("");
   const [contractAddress, setContractAddress] = useState<string>("");
   const [account, setAccount] = useState<Account>();
@@ -108,60 +103,60 @@ export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({
   const [traceError, setTraceError] = useState("");
   const [simulationParameters, setSimulationParameters] =
     useState<SimulationParameters>();
-  const [pathArray, setPathArray] = useState<string[]>([]);
+  const [selectedFileId, setSelectedFileId] = useState<number>(1);
+  const [selectedFolder, setSelectedFolder] = useState<number>(0);
 
-let updateChild = (id:number, code:string) => (obj:FileItemProps) => {
+  const updateChild = (id: number, code: string) => (obj: FileItemProps) => {
     if (obj.id === id) {
-        obj.code = code;
-        return true;
-    }
-    else if (obj.children)
-        return obj.children.some(updateChild(id, code));
-};
-console.log("Workspace",workspaces,selectedFileId,selectedWorkspace)
-let addChild = (id:number,fileData: FileItemProps) => (obj:FileItemProps) => {
-  if (obj.id === id) {
-    if(obj.children)
-      obj.children.push(fileData);
-    else
-    obj.children=[fileData];
+      obj.code = code;
       return true;
-  }
-  else if (obj.children)
-      return obj.children.some(addChild(id, fileData));
-};
+    } else if (obj.children) return obj.children.some(updateChild(id, code));
+  };
+  console.log("Workspace", workspaces, selectedFileId, selectedWorkspace);
+  const addChild =
+    (id: number, fileData: FileItemProps) => (obj: FileItemProps) => {
+      if (obj.id === id) {
+        if (obj.children) obj.children.push(fileData);
+        else obj.children = [fileData];
+        return true;
+      } else if (obj.children) return obj.children.some(addChild(id, fileData));
+    };
 
-const addFile = (name:string,type:"folder"|"file")=>{
-  const newWorkspaceChildren = workspaces[selectedWorkspace].children;
-  newWorkspaceChildren.some(addChild(selectedFileId,{id:nextId,name,type}));
-   const newWorkspaces = workspaces.map((workspace,index)=>{
-    if(index!==selectedWorkspace)
-      return workspace
-    else
-    return {...workspace,children:newWorkspaceChildren};
-  });
-  setWorkspaces(newWorkspaces)
-  setNextId(prevState=>prevState+1);
-}
-const saveFile = () => {
-  const newWorkspaceChildren = workspaces[selectedWorkspace].children;
-  newWorkspaceChildren.some(updateChild(selectedFileId,selectedCode));
-  const newWorkspaces = workspaces.map((workspace,index)=>{
-    if(index!==selectedWorkspace)
-      return workspace
-    else
-    return {...workspace,children:newWorkspaceChildren};
-  });
-  setWorkspaces(newWorkspaces);
-}
+  const addFile = (type: "folder" | "file") => (name: string) => {
+    const newWorkspaceChildren = workspaces[selectedWorkspace].children;
+    newWorkspaceChildren.some(
+      addChild(selectedFolder, { id: nextId, name, type, code: initialCode })
+    );
+    const newWorkspaces = workspaces.map((workspace, index) => {
+      if (index !== selectedWorkspace) return workspace;
+      else return { ...workspace, children: newWorkspaceChildren };
+    });
+    setWorkspaces(newWorkspaces);
+    setNextId((prevState) => prevState + 1);
+  };
+  const saveFile = () => {
+    const newWorkspaceChildren = workspaces[selectedWorkspace].children;
+    newWorkspaceChildren.some(updateChild(selectedFileId, selectedCode));
+    const newWorkspaces = workspaces.map((workspace, index) => {
+      if (index !== selectedWorkspace) return workspace;
+      else return { ...workspace, children: newWorkspaceChildren };
+    });
+    setWorkspaces(newWorkspaces);
+  };
 
-useEffect(()=>{
-  saveFile();
-},[selectedCode])
-const createNewWorkspace = () => {
-  const clone = JSON.parse(JSON.stringify(DEFAULT_WORKSPACE_TREE))
-  setWorkspaces(prevState=>[...prevState,clone])
-}
+  const createNewWorkspace = (name: string) => {
+    const clone = JSON.parse(JSON.stringify(DEFAULT_WORKSPACE_TREE));
+    clone.name = name;
+    setWorkspaces((prevState) => {
+      const length = prevState.length;
+      setSelectedWorkspace(length);
+      return [...prevState, clone];
+    });
+  };
+
+  useEffect(() => {
+    saveFile();
+  }, [selectedCode]);
 
   return (
     <WorkspaceContext.Provider
@@ -170,7 +165,6 @@ const createNewWorkspace = () => {
         selectedWorkspace,
         selectedCode,
         selectedFileName,
-        currentRoot,
         compilationResult,
         contractAddress,
         account,
@@ -187,7 +181,6 @@ const createNewWorkspace = () => {
         setSelectedWorkspace,
         setSelectedCode,
         setSelectedFileName,
-        setCurrentRoot,
         setCompilationResult,
         setContractAddress,
         setAccount,
@@ -197,6 +190,7 @@ const createNewWorkspace = () => {
         setTraceError,
         setSimulationParameters,
         setSelectedFileId,
+        setSelectedFolder,
       }}
     >
       {children}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import {
   AiOutlineFolder,
   AiFillFolder,
@@ -19,6 +19,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog";
+import { FilePlusIcon } from "lucide-react";
+import { Input } from "../ui/input";
+import { Button } from "../ui/button";
 
 const FileItem: React.FC<FileItemProps> = ({
   name,
@@ -29,8 +40,12 @@ const FileItem: React.FC<FileItemProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isSelected, setIsSelected] = useState(false);
-  const { setSelectedCode, setSelectedFileName, setSelectedFileId } =
-    useWorkspace();
+  const {
+    setSelectedCode,
+    setSelectedFileName,
+    setSelectedFileId,
+    setSelectedFolder,
+  } = useWorkspace();
 
   const Icon = type === "folder" ? AiFillFolder : AiFillFile;
 
@@ -42,7 +57,7 @@ const FileItem: React.FC<FileItemProps> = ({
           onClick={() => {
             if (type === "file") {
               setSelectedCode(code!);
-            }
+            } else setSelectedFolder(id);
             setIsOpen(!isOpen);
             setSelectedFileId(id);
             setSelectedFileName(name);
@@ -63,6 +78,9 @@ const FileItem: React.FC<FileItemProps> = ({
 
 const Workspace: React.FC = () => {
   const [isOpen, setIsOpen] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isModalFolderOpen, setIsModalFolderOpen] = useState(false);
+  const [isModalWorkspaceOpen, setIsModalWorkspaceOpen] = useState(false);
   const {
     selectedWorkspace,
     setSelectedWorkspace,
@@ -71,7 +89,6 @@ const Workspace: React.FC = () => {
     addFile,
   } = useWorkspace();
 
-  console.log("HEREDATA", workspaces, workspaces[selectedWorkspace]);
   return (
     <div className="">
       <div className="flex items-center justify-between mb-4">
@@ -85,6 +102,8 @@ const Workspace: React.FC = () => {
           <div className="flex items-center justify-between mb-2">
             <Select
               onValueChange={(e) => {
+                if (e === "new") setIsModalWorkspaceOpen(true);
+                else
                 setSelectedWorkspace(Number(e));
               }}
             >
@@ -114,23 +133,23 @@ const Workspace: React.FC = () => {
             </Select>
 
             <div className="ml-2 cursor-pointer">
-              <AiOutlineDelete
-                onClick={() => {
-                  createNewWorkspace();
-                }}
-              />
+              <AiOutlineDelete onClick={() => {}} />
             </div>
           </div>
           <div className="flex items-center mb-4">
             <div className="mr-2 cursor-pointer">
               <AiOutlineFolder
                 onClick={() => {
-                  addFile("abc", "folder");
+                  setIsModalFolderOpen(true);
                 }}
               />
             </div>
             <div className="mr-2 cursor-pointer">
-              <AiOutlineFolder />
+              <AiFillFile
+                onClick={() => {
+                  setIsModalOpen(true);
+                }}
+              />
             </div>
             <div className="mr-2 cursor-pointer">
               <AiOutlineUpload />
@@ -146,8 +165,73 @@ const Workspace: React.FC = () => {
           </div>
         </div>
       )}
+      <Modal
+        label={"New File"}
+        isModalOpen={isModalOpen}
+        setIsModalOpen={setIsModalOpen}
+        handleSubmit={addFile("file")}
+      />
+      <Modal
+        label={"New Folder"}
+        isModalOpen={isModalFolderOpen}
+        setIsModalOpen={setIsModalFolderOpen}
+        handleSubmit={addFile("folder")}
+      />
+      <Modal
+        label={"New Workspace"}
+        isModalOpen={isModalWorkspaceOpen}
+        setIsModalOpen={setIsModalWorkspaceOpen}
+        handleSubmit={createNewWorkspace}
+      />
     </div>
   );
 };
 
+const Modal = ({
+  label,
+  isModalOpen,
+  setIsModalOpen,
+  handleSubmit,
+}: {
+  label: string;
+  isModalOpen: boolean;
+  setIsModalOpen: Dispatch<SetStateAction<boolean>>;
+  handleSubmit: (data: string) => void;
+}) => {
+  const [input, setInput] = useState("");
+  const [error, setError] = useState<string | null>(null);
+
+  return (
+    <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>{label}</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-5">
+          <Input
+            type="text"
+            placeholder="File Name"
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            className="border rounded-md p-2 mb-2 w-full"
+          />
+          {!!error && <span className="text-red-500 text-sm">{error}</span>}
+          <div className="flex justify-end gap-3">
+            <DialogClose asChild>
+              <Button variant={"destructive"}>Cancel</Button>
+            </DialogClose>
+            <Button
+              onClick={(e) => {
+                handleSubmit(input);
+                setIsModalOpen(false);
+              }}
+            >
+              Create
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
 export default Workspace;
