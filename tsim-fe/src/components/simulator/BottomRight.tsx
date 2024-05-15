@@ -129,7 +129,7 @@ export default function BottomRight() {
   }, [compilationResult]);
 
   return (
-    <div className="p-2">
+    <div className="p-2 w-full overflow-x-auto">
       <Tabs defaultValue="bottom-right" className=" justify-between">
         <TabsList className="">
           <TabsTrigger value="sierra">Sierra</TabsTrigger>
@@ -138,7 +138,8 @@ export default function BottomRight() {
         </TabsList>
         <TabsContent value="sierra">
           <Editor
-            height={200}
+          
+            height={"40vh"}
             language="json"
             theme="vs-dark"
             value={sierra}
@@ -155,7 +156,7 @@ export default function BottomRight() {
         </TabsContent>
         <TabsContent value="casm">
           <Editor
-            height={200}
+            height={"40vh"}
             language="json"
             theme="vs-dark"
             value={casm}
@@ -205,15 +206,19 @@ const ExecutionTrace = ({ relocationTrace }: any) => {
   const [currentPc, setCurrentPc] = useState(0);
   const [casmInstructions, setCasmInstructions] = useState([]);
   const { selectedFileName, compilationResult, setLocation } = useWorkspace();
+
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop = 200;
+      scrollRef.current.scrollTop=53*currentPc;
     }
   }, [currentPc]);
 
+
   useEffect(() => {
+    if(typeof relocationTrace[traceIndex]==="undefined")
+      return;
     const pc = relocationTrace[traceIndex].pc;
     const realPc = pc - 1;
     setCurrentPc(realPc);
@@ -269,18 +274,18 @@ const ExecutionTrace = ({ relocationTrace }: any) => {
   };
 
   return (
-    <div>
-      <div className="flex">
-        <div className="w-1/2 m-2">Execution Trace</div>
-        <div className="w-1/2">
+    <div className="flex flex-col h-[100%]">
+      <div className="flex flex-col">
+        <div className="w-1/2 m-2 flex flex-col">Execution Trace</div>
+        <div className="w-full">
           <div className="buttons flex justify-end">
-            <AiOutlineUndo
+            <AiOutlineUndo 
               onClick={() => {
                 if (traceIndex > 0) {
                   setTraceIndex(traceIndex - 1);
                 }
               }}
-              className="mr-2"
+              className="mr-2 hover:cursor-pointer"
             />
             <AiOutlineRedo
               onClick={() => {
@@ -288,13 +293,13 @@ const ExecutionTrace = ({ relocationTrace }: any) => {
                   setTraceIndex(traceIndex + 1);
                 }
               }}
-              className="mr-2"
+              className="mr-2 hover:cursor-pointer"
             />
-            <AiOutlinePlayCircle />
+            <AiOutlinePlayCircle className="hover:cursor-pointer"/>
           </div>
         </div>
       </div>
-      <div className="relative h-96 overflow-y-auto" ref={scrollRef}>
+      <div className="relative h-96 overflow-y-auto no-scrollbar" ref={scrollRef}>
         <Table>
           <TableHeader>
             <TableRow>

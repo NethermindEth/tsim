@@ -86,7 +86,7 @@ const Simulate = ({ functions }: { functions?: Function }) => {
   }
 
   return (
-    <div className="p-2">
+    <div className="p-2 w-full">
       <Tabs defaultValue="simulator" className="w-[800px] justify-between">
         <TabsList className="">
           <TabsTrigger value="read">Read</TabsTrigger>
