@@ -185,6 +185,8 @@ const Workspace: React.FC = () => {
   );
 };
 
+
+//@dev should be moved into a seperate component but needs to be made more generic before doing so
 const Modal = ({
   label,
   isModalOpen,

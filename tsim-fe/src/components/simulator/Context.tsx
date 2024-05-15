@@ -85,7 +85,10 @@ const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
 export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
+
+  //Create a quick deep copy from a pure JSON
   const clone = JSON.parse(JSON.stringify(DEFAULT_WORKSPACE_TREE));
+
   const [workspaces, setWorkspaces] = useState<WorkspaceType[]>([clone]);
   const [selectedWorkspace, setSelectedWorkspace] = useState<number>(0);
   const [nextId, setNextId] = useState<number>(2);
@@ -106,12 +109,19 @@ export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({
   const [selectedFileId, setSelectedFileId] = useState<number>(1);
   const [selectedFolder, setSelectedFolder] = useState<number>(0);
 
+
+
+  //Recursive functions to update deeply nested array child
+  //Update the code for the current file from editor changes
   const updateChild = (id: number, code: string) => (obj: FileItemProps) => {
     if (obj.id === id) {
       obj.code = code;
       return true;
     } else if (obj.children) return obj.children.some(updateChild(id, code));
   };
+
+
+  //Add a new file/folder in the File Tree
   const addChild =
     (id: number, fileData: FileItemProps) => (obj: FileItemProps) => {
       if (obj.id === id) {
@@ -121,6 +131,8 @@ export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({
       } else if (obj.children) return obj.children.some(addChild(id, fileData));
     };
 
+
+  //Exported functions to update workspace states
   const addFile = (type: "folder" | "file") => (name: string) => {
     const newWorkspaceChildren = workspaces[selectedWorkspace].children;
     newWorkspaceChildren.some(
@@ -133,6 +145,7 @@ export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({
     setWorkspaces(newWorkspaces);
     setNextId((prevState) => prevState + 1);
   };
+
   const saveFile = () => {
     const newWorkspaceChildren = workspaces[selectedWorkspace].children;
     newWorkspaceChildren.some(updateChild(selectedFileId, selectedCode));
@@ -153,6 +166,7 @@ export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({
     });
   };
 
+  //Update file contents in the file tree on editor changes
   useEffect(() => {
     saveFile();
   }, [selectedCode]);
