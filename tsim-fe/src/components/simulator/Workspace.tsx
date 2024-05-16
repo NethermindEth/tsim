@@ -64,8 +64,9 @@ const FileItem: React.FC<FileItemProps> = ({
           }}
         >
           {isOpen && type === "folder" ? <AiFillFolderOpen /> : <Icon />}
+          <span className="text-sm">{name}</span>
         </div>
-        <span className="text-sm">{name}</span>
+       
       </div>
       <div className="pl-4">
         {children &&
