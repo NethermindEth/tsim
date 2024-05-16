@@ -61,7 +61,7 @@ interface WorkspaceContextType {
   addFile: (type: "folder" | "file") => (name: string) => void;
   saveFile: () => void;
   createNewWorkspace: (name: string) => void;
-  deleteWorkspace:()=>void;
+  deleteWorkspace: () => void;
 
   setWorkspaces: (workspaces: WorkspaceType[]) => void;
   setSelectedWorkspace: (index: number) => void;
@@ -86,7 +86,6 @@ const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
 export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-
   //Create a quick deep copy from a pure JSON
   const clone = JSON.parse(JSON.stringify(DEFAULT_WORKSPACE_TREE));
 
@@ -110,8 +109,6 @@ export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({
   const [selectedFileId, setSelectedFileId] = useState<number>(1);
   const [selectedFolder, setSelectedFolder] = useState<number>(0);
 
-
-
   //Recursive functions to update deeply nested array child
   //Update the code for the current file from editor changes
   const updateChild = (id: number, code: string) => (obj: FileItemProps) => {
@@ -121,29 +118,46 @@ export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({
     } else if (obj.children) return obj.children.some(updateChild(id, code));
   };
 
-
   //Add a new file/folder in the File Tree
   const addChild =
     (id: number, fileData: FileItemProps) => (obj: FileItemProps) => {
       if (obj.id === id) {
-        if (obj.children) obj.children.push(fileData);
-        else obj.children = [fileData];
+        if (!obj.children) {
+          obj.children = []; // Ensure children array is initialized
+        }
+        obj.children.push(fileData);
         return true;
-      } else if (obj.children) return obj.children.some(addChild(id, fileData));
+      } else if (obj.children) {
+        return obj.children.some(addChild(id, fileData));
+      }
+      return false;
     };
-
 
   //Exported functions to update workspace states
   const addFile = (type: "folder" | "file") => (name: string) => {
-    const newWorkspaceChildren = workspaces[selectedWorkspace].children;
-    newWorkspaceChildren.some(
-      addChild(selectedFolder, { id: nextId, name, type, code: initialCode })
-    );
-    const newWorkspaces = workspaces.map((workspace, index) => {
-      if (index !== selectedWorkspace) return workspace;
-      else return { ...workspace, children: newWorkspaceChildren };
-    });
-    setWorkspaces(newWorkspaces);
+    const workspaceIndex = selectedWorkspace;
+    const newWorkspace = { ...workspaces[workspaceIndex] }; // Clone the selected workspace
+    const newWorkspaceChildren = newWorkspace.children
+      ? [...newWorkspace.children]
+      : [];
+
+    // Attempt to add the child to the specified folder or directly to the root if no folder is selected
+    const wasAdded = selectedFolder
+      ? newWorkspaceChildren.some(
+          addChild(selectedFolder, { id: nextId, name, type, code: "" })
+        )
+      : false;
+
+    if (!wasAdded) {
+      // If not added to a folder, add to the root
+      newWorkspaceChildren.push({ id: nextId, name, type, code: "" });
+    }
+
+    newWorkspace.children = newWorkspaceChildren;
+    const newWorkspaces = [...workspaces];
+    newWorkspaces[workspaceIndex] = newWorkspace;
+
+    setWorkspaces(newWorkspaces); // TODO: Next id should also be a tree/node
     setNextId((prevState) => prevState + 1);
   };
 
@@ -160,20 +174,22 @@ export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({
   const createNewWorkspace = (name: string) => {
     const clone = JSON.parse(JSON.stringify(DEFAULT_WORKSPACE_TREE));
     clone.name = name;
+    clone.children = [];
     setWorkspaces((prevState) => {
       const length = prevState.length;
-       setSelectedWorkspace(length)
+      setSelectedWorkspace(length);
       return [...prevState, clone];
     });
-   
   };
 
-  const deleteWorkspace = ()=>{
-    setWorkspaces(prevState=>{
-      return prevState.filter((workspace,index)=>index!==selectedWorkspace)
-    })
+  const deleteWorkspace = () => {
+    setWorkspaces((prevState) => {
+      return prevState.filter(
+        (workspace, index) => index !== selectedWorkspace
+      );
+    });
     setSelectedWorkspace(0);
-  }
+  };
   //Update file contents in the file tree on editor changes
   useEffect(() => {
     saveFile();

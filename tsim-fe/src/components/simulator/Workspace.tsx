@@ -51,13 +51,15 @@ const FileItem: React.FC<FileItemProps> = ({
 
   return (
     <div className="items-center my-1 text-gray-300 hover:text-white cursor-pointer">
-      <div className="flex items-center ">
+      <div className="flex items-center cursor-pointer">
         <div
           className="flex items-center"
           onClick={() => {
             if (type === "file") {
               setSelectedCode(code!);
-            } else setSelectedFolder(id);
+            } else {
+              isOpen ? setSelectedFolder(id - 1) : setSelectedFolder(id);
+            }
 
             setIsOpen(!isOpen);
             setSelectedFileId(id);
