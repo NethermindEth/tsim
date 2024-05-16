@@ -61,6 +61,7 @@ interface WorkspaceContextType {
   addFile: (type: "folder" | "file") => (name: string) => void;
   saveFile: () => void;
   createNewWorkspace: (name: string) => void;
+  deleteWorkspace:()=>void;
 
   setWorkspaces: (workspaces: WorkspaceType[]) => void;
   setSelectedWorkspace: (index: number) => void;
@@ -161,11 +162,18 @@ export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({
     clone.name = name;
     setWorkspaces((prevState) => {
       const length = prevState.length;
-      setSelectedWorkspace(length);
+       setSelectedWorkspace(length)
       return [...prevState, clone];
     });
+   
   };
 
+  const deleteWorkspace = ()=>{
+    setWorkspaces(prevState=>{
+      return prevState.filter((workspace,index)=>index!==selectedWorkspace)
+    })
+    setSelectedWorkspace(0);
+  }
   //Update file contents in the file tree on editor changes
   useEffect(() => {
     saveFile();
@@ -190,6 +198,7 @@ export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({
         addFile,
         saveFile,
         createNewWorkspace,
+        deleteWorkspace,
         setWorkspaces,
         setSelectedWorkspace,
         setSelectedCode,

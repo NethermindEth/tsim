@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useMemo, useState } from "react";
 import {
   AiOutlineFolder,
   AiFillFolder,
@@ -80,6 +80,7 @@ const Workspace: React.FC = () => {
   const [isOpen, setIsOpen] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalFolderOpen, setIsModalFolderOpen] = useState(false);
+  
   const [isModalWorkspaceOpen, setIsModalWorkspaceOpen] = useState(false);
   const {
     selectedWorkspace,
@@ -87,7 +88,12 @@ const Workspace: React.FC = () => {
     workspaces,
     createNewWorkspace,
     addFile,
+    deleteWorkspace,
   } = useWorkspace();
+
+  const value = useMemo(()=>{
+    return workspaces[selectedWorkspace].name
+  },[selectedWorkspace, workspaces])
 
   return (
     <div className="">
@@ -101,6 +107,7 @@ const Workspace: React.FC = () => {
         <div>
           <div className="flex items-center justify-between mb-2">
             <Select
+            value={selectedWorkspace.toString()}
               onValueChange={(e) => {
                 if (e === "new") setIsModalWorkspaceOpen(true);
                 else
@@ -108,7 +115,7 @@ const Workspace: React.FC = () => {
               }}
             >
               <SelectTrigger className="w-full h-8">
-                <SelectValue placeholder={workspaces[selectedWorkspace].name} />
+                <SelectValue placeholder={value} />
               </SelectTrigger>
               <SelectContent
                 onChange={(e) => {
@@ -131,7 +138,7 @@ const Workspace: React.FC = () => {
             </Select>
 
             <div className="ml-2 cursor-pointer">
-              <AiOutlineDelete onClick={() => {}} />
+              <AiOutlineDelete onClick={() => {deleteWorkspace()}} />
             </div>
           </div>
           <div className="flex items-center mb-4">
@@ -148,12 +155,6 @@ const Workspace: React.FC = () => {
                   setIsModalOpen(true);
                 }}
               />
-            </div>
-            <div className="mr-2 cursor-pointer">
-              <AiOutlineUpload />
-            </div>
-            <div className="mr-2 cursor-pointer">
-              <AiOutlineDownload />
             </div>
           </div>
           <div className="space-y-2">
