@@ -53,20 +53,22 @@ const FileItem: React.FC<FileItemProps> = ({
     <div className="items-center my-1 text-gray-300 hover:text-white cursor-pointer">
       <div className="flex items-center ">
         <div
-          className="mr-2"
+          className="flex items-center"
           onClick={() => {
             if (type === "file") {
               setSelectedCode(code!);
             } else setSelectedFolder(id);
+
             setIsOpen(!isOpen);
             setSelectedFileId(id);
             setSelectedFileName(name);
           }}
         >
-          {isOpen && type === "folder" ? <AiFillFolderOpen /> : <Icon />}
+          <div className="mr-2">
+            {isOpen && type === "folder" ? <AiFillFolderOpen /> : <Icon />}
+          </div>
           <span className="text-sm">{name}</span>
         </div>
-       
       </div>
       <div className="pl-4">
         {children &&
@@ -81,7 +83,7 @@ const Workspace: React.FC = () => {
   const [isOpen, setIsOpen] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalFolderOpen, setIsModalFolderOpen] = useState(false);
-  
+
   const [isModalWorkspaceOpen, setIsModalWorkspaceOpen] = useState(false);
   const {
     selectedWorkspace,
@@ -92,9 +94,9 @@ const Workspace: React.FC = () => {
     deleteWorkspace,
   } = useWorkspace();
 
-  const value = useMemo(()=>{
-    return workspaces[selectedWorkspace].name
-  },[selectedWorkspace, workspaces])
+  const value = useMemo(() => {
+    return workspaces[selectedWorkspace].name;
+  }, [selectedWorkspace, workspaces]);
 
   return (
     <div className="">
@@ -108,20 +110,16 @@ const Workspace: React.FC = () => {
         <div>
           <div className="flex items-center justify-between mb-2">
             <Select
-            value={selectedWorkspace.toString()}
+              value={selectedWorkspace.toString()}
               onValueChange={(e) => {
                 if (e === "new") setIsModalWorkspaceOpen(true);
-                else
-                setSelectedWorkspace(Number(e));
+                else setSelectedWorkspace(Number(e));
               }}
             >
               <SelectTrigger className="w-full h-8">
                 <SelectValue placeholder={value} />
               </SelectTrigger>
-              <SelectContent
-                onChange={(e) => {
-                }}
-              >
+              <SelectContent onChange={(e) => {}}>
                 {workspaces.map((workspace, index) => (
                   <SelectItem key={index} value={index.toString()}>
                     {workspace.name}
@@ -139,7 +137,11 @@ const Workspace: React.FC = () => {
             </Select>
 
             <div className="ml-2 cursor-pointer">
-              <AiOutlineDelete onClick={() => {deleteWorkspace()}} />
+              <AiOutlineDelete
+                onClick={() => {
+                  deleteWorkspace();
+                }}
+              />
             </div>
           </div>
           <div className="flex items-center mb-4">
@@ -187,7 +189,6 @@ const Workspace: React.FC = () => {
   );
 };
 
-
 //@dev should be moved into a seperate component but needs to be made more generic before doing so
 const Modal = ({
   label,
@@ -224,12 +225,12 @@ const Modal = ({
             </DialogClose>
             <Button
               onClick={(e) => {
-                if(input==="")
-                  setError("Field Cannot be empty")
-                else
-                 { setError(null)
-                handleSubmit(input);
-                setIsModalOpen(false);}
+                if (input === "") setError("Field Cannot be empty");
+                else {
+                  setError(null);
+                  handleSubmit(input);
+                  setIsModalOpen(false);
+                }
               }}
             >
               Create
