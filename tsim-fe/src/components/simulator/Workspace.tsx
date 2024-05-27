@@ -85,6 +85,15 @@ const Workspace: React.FC = () => {
   const [isOpen, setIsOpen] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalFolderOpen, setIsModalFolderOpen] = useState(false);
+  const [searchHash,setSearchHash] = useState('');
+  const handleSearch = (e) => {
+    e.preventDefault();
+    console.log(searchHash);
+
+    // Add your search logic here
+
+    setSearchHash('');
+  };
 
   const [isModalWorkspaceOpen, setIsModalWorkspaceOpen] = useState(false);
   const {
@@ -121,7 +130,7 @@ const Workspace: React.FC = () => {
               <SelectTrigger className="w-full h-8">
                 <SelectValue placeholder={value} />
               </SelectTrigger>
-              <SelectContent onChange={(e) => {}}>
+              <SelectContent onChange={(e) => { }}>
                 {workspaces.map((workspace, index) => (
                   <SelectItem key={index} value={index.toString()}>
                     {workspace.name}
@@ -187,6 +196,26 @@ const Workspace: React.FC = () => {
         setIsModalOpen={setIsModalWorkspaceOpen}
         handleSubmit={createNewWorkspace}
       />
+      <div className="text-sm mt-7">
+        Search using Class Hash Or Address
+      </div>
+      <div className="w-full h-20px mt-3">
+        <div className="flex items-center mb-4">
+          <input
+            type="text"
+            value={searchHash}
+            placeholder="Search..."
+            onChange={(e) => setSearchHash(e.target.value)}
+            className="w-full h-10 p-2 text-sm border-2 border-gray-300 rounded-l-md focus:outline-none focus:w-full focus:border-blue-500 transition-all duration-300"
+          />
+          <button 
+            className="h-10 px-4 text-sm border-2 border-l-0 border-gray-300 rounded-r-md bg-blue-500 text-white hover:bg-blue-700 transition-colors duration-300"
+            onClick={handleSearch}
+            >
+            Search
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
