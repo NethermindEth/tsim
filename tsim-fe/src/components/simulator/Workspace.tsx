@@ -31,7 +31,7 @@ import { FilePlusIcon } from "lucide-react";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 
-const FileItem: React.FC<FileItemProps> = ({
+export const FileItem: React.FC<FileItemProps> = ({
   name,
   type,
   children,

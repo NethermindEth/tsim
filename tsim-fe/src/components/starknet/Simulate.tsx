@@ -93,7 +93,7 @@ const Simulate = ({ functions }: { functions?: Function }) => {
           <TabsTrigger value="write">Write</TabsTrigger>
         </TabsList>
         <TabsContent value="read">
-          <p>Test</p>
+          {/* <p>Test</p> */}
           <div>
             {functions.read.map((f, i) => {
               return (
