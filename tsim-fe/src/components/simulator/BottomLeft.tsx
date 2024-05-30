@@ -112,16 +112,10 @@ export default function BottomLeft() {
                 if (data) {
                   setCompilationResult(JSON.stringify(data, null, 2));
 
-                  let compilationResult = JSON.stringify(data, null, 2);
+                  const abi = data.cairo_sierra.sierra_contract_class.abi;
 
-                  if (compilationResult) {
-                    const abi =
-                      JSON.parse(compilationResult).cairo_sierra
-                        .sierra_contract_class.abi;
-
-                    if (abi) {
-                      setFunctions(getFunctions(abi));
-                    }
+                  if (abi) {
+                    setFunctions(getFunctions(abi));
                   }
                 }
               }}

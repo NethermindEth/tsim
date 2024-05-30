@@ -57,6 +57,7 @@ interface WorkspaceContextType {
   traceError: string | undefined;
   simulationParameters: SimulationParameters | undefined;
   selectedFileId: number;
+  contract: string;
 
   addFile: (type: "folder" | "file") => (name: string) => void;
   saveFile: () => void;
@@ -77,6 +78,7 @@ interface WorkspaceContextType {
   setSimulationParameters: (simulationParameters: SimulationParameters) => void;
   setSelectedFileId: Dispatch<SetStateAction<number>>;
   setSelectedFolder: Dispatch<SetStateAction<number>>;
+  setContract: (contract: string) => void;
 }
 
 const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
@@ -108,6 +110,7 @@ export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({
     useState<SimulationParameters>();
   const [selectedFileId, setSelectedFileId] = useState<number>(1);
   const [selectedFolder, setSelectedFolder] = useState<number>(0);
+  const [contract, setContract] = useState<string>("");
 
   //Recursive functions to update deeply nested array child
   //Update the code for the current file from editor changes
@@ -211,6 +214,7 @@ export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({
         traceError,
         simulationParameters,
         selectedFileId,
+        contract,
         addFile,
         saveFile,
         createNewWorkspace,
@@ -229,6 +233,7 @@ export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({
         setSimulationParameters,
         setSelectedFileId,
         setSelectedFolder,
+        setContract,
       }}
     >
       {children}

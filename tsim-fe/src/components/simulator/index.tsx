@@ -17,7 +17,7 @@ export default function Home() {
         </div>
         {/* Code Editor */}
         <div className="flex-1 p-2 overflow-auto">
-          <CodeEditor />
+          <CodeEditor readOnly={false} />
         </div>
       </div>
       {/* Bottom Panel for Tabs */}

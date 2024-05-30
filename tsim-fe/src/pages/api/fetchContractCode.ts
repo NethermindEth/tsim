@@ -12,7 +12,7 @@ export default async function handler(
   }
 
   try {
-    const response = await fetch(`VOYAGER_API_ENDPOINT/${classHash}/code`);
+    const response = await fetch(`${VOYAGER_API_ENDPOINT}/${classHash}/code`);
     const data = await response.json();
     res.status(200).json(data);
   } catch (error) {

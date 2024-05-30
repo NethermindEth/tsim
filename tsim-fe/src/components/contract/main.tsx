@@ -35,7 +35,7 @@ export default function SepoliaContract() {
       const data = await response.json();
       setWorkspace(generateWorkspace(data.code));
 
-      const abi = (await provider.getClassAt(classHash)).abi;
+      const abi = (await provider.getClassAt(contractAddress)).abi;
       setFunctions(getFunctions(abi));
 
       setSelectedCode("");
@@ -120,7 +120,7 @@ export default function SepoliaContract() {
             </div>
             {/* Code Editor */}
             <div className="flex-1 p-2 overflow-auto">
-              <CodeEditor />
+              <CodeEditor readOnly={true} />
             </div>
           </div>
           {/* Bottom Panel for Tabs */}
@@ -155,8 +155,13 @@ export default function SepoliaContract() {
 }
 
 const BottomLeft = () => {
-  const { functions, selectedCode, selectedFileName, setCompilationResult } =
-    useWorkspace();
+  const {
+    functions,
+    selectedCode,
+    selectedFileName,
+    setCompilationResult,
+    setContract,
+  } = useWorkspace();
 
   return (
     <div className="w-1/4 p-2 border-r overflow-auto">
@@ -178,6 +183,9 @@ const BottomLeft = () => {
 
                 if (data) {
                   setCompilationResult(JSON.stringify(data, null, 2));
+
+                  let contract = data.cairo_sierra.contract;
+                  setContract(contract);
                 }
               }}
             >
