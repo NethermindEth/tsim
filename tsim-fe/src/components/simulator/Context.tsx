@@ -1,6 +1,18 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
-import { SimulationParameters, Workspace as WorkspaceType } from "./types";
-import { DEFAULT_WORKSPACE_TREE } from "./constants";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+  Dispatch,
+  SetStateAction,
+} from "react";
+import {
+  FileItemProps,
+  SimulationParameters,
+  Workspace as WorkspaceType,
+} from "./types";
+import { DEFAULT_WORKSPACE_TREE, DEFAULT_WORKSPACE } from "./constants";
 import { Account } from "starknet";
 import { type Function } from "../starknet/Simulate";
 
@@ -44,6 +56,14 @@ interface WorkspaceContextType {
   trace: any | undefined;
   traceError: string | undefined;
   simulationParameters: SimulationParameters | undefined;
+  selectedFileId: number;
+  contract: string;
+
+  addFile: (type: "folder" | "file") => (name: string) => void;
+  saveFile: () => void;
+  createNewWorkspace: (name: string) => void;
+  deleteWorkspace: () => void;
+
   setWorkspaces: (workspaces: WorkspaceType[]) => void;
   setSelectedWorkspace: (index: number) => void;
   setSelectedCode: (code: string) => void;
@@ -56,6 +76,9 @@ interface WorkspaceContextType {
   setTrace: (trace: any) => void;
   setTraceError: (traceError: string) => void;
   setSimulationParameters: (simulationParameters: SimulationParameters) => void;
+  setSelectedFileId: Dispatch<SetStateAction<number>>;
+  setSelectedFolder: Dispatch<SetStateAction<number>>;
+  setContract: (contract: string) => void;
 }
 
 const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
@@ -65,10 +88,12 @@ const WorkspaceContext = createContext<WorkspaceContextType | undefined>(
 export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [workspaces, setWorkspaces] = useState<WorkspaceType[]>([
-    DEFAULT_WORKSPACE_TREE,
-  ]);
+  //Create a quick deep copy from a pure JSON
+  const clone = JSON.parse(JSON.stringify(DEFAULT_WORKSPACE_TREE));
+
+  const [workspaces, setWorkspaces] = useState<WorkspaceType[]>([clone]);
   const [selectedWorkspace, setSelectedWorkspace] = useState<number>(0);
+  const [nextId, setNextId] = useState<number>(2);
   const [selectedCode, setSelectedCode] = useState<string>(initialCode);
   const [selectedFileName, setSelectedFileName] = useState<string>("Balance");
   const [compilationResult, setCompilationResult] = useState<string>("");
@@ -78,11 +103,100 @@ export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({
     read: [],
     write: [],
   });
-  const [location, setLocation] = useState<any>();
+  const [location, setLocation] = useState<any>("");
   const [trace, setTrace] = useState();
   const [traceError, setTraceError] = useState("");
   const [simulationParameters, setSimulationParameters] =
     useState<SimulationParameters>();
+  const [selectedFileId, setSelectedFileId] = useState<number>(1);
+  const [selectedFolder, setSelectedFolder] = useState<number>(0);
+  const [contract, setContract] = useState<string>("");
+
+  //Recursive functions to update deeply nested array child
+  //Update the code for the current file from editor changes
+  const updateChild = (id: number, code: string) => (obj: FileItemProps) => {
+    if (obj.id === id) {
+      obj.code = code;
+      return true;
+    } else if (obj.children) return obj.children.some(updateChild(id, code));
+  };
+
+  //Add a new file/folder in the File Tree
+  const addChild =
+    (id: number, fileData: FileItemProps) => (obj: FileItemProps) => {
+      if (obj.id === id) {
+        if (!obj.children) {
+          obj.children = []; // Ensure children array is initialized
+        }
+        obj.children.push(fileData);
+        return true;
+      } else if (obj.children) {
+        return obj.children.some(addChild(id, fileData));
+      }
+      return false;
+    };
+
+  //Exported functions to update workspace states
+  const addFile = (type: "folder" | "file") => (name: string) => {
+    const workspaceIndex = selectedWorkspace;
+    const newWorkspace = { ...workspaces[workspaceIndex] }; // Clone the selected workspace
+    const newWorkspaceChildren = newWorkspace.children
+      ? [...newWorkspace.children]
+      : [];
+
+    // Attempt to add the child to the specified folder or directly to the root if no folder is selected
+    const wasAdded = selectedFolder
+      ? newWorkspaceChildren.some(
+          addChild(selectedFolder, { id: nextId, name, type, code: "" })
+        )
+      : false;
+
+    if (!wasAdded) {
+      // If not added to a folder, add to the root
+      newWorkspaceChildren.push({ id: nextId, name, type, code: "" });
+    }
+
+    newWorkspace.children = newWorkspaceChildren;
+    const newWorkspaces = [...workspaces];
+    newWorkspaces[workspaceIndex] = newWorkspace;
+
+    setWorkspaces(newWorkspaces); // TODO: Next id should also be a tree/node
+    setNextId((prevState) => prevState + 1);
+  };
+
+  const saveFile = () => {
+    const newWorkspaceChildren = workspaces[selectedWorkspace].children;
+    newWorkspaceChildren.some(updateChild(selectedFileId, selectedCode));
+    const newWorkspaces = workspaces.map((workspace, index) => {
+      if (index !== selectedWorkspace) return workspace;
+      else return { ...workspace, children: newWorkspaceChildren };
+    });
+    setWorkspaces(newWorkspaces);
+  };
+
+  const createNewWorkspace = (name: string) => {
+    const clone = JSON.parse(JSON.stringify(DEFAULT_WORKSPACE_TREE));
+    clone.name = name;
+    clone.children = [];
+    setWorkspaces((prevState) => {
+      const length = prevState.length;
+      setSelectedWorkspace(length);
+      return [...prevState, clone];
+    });
+  };
+
+  const deleteWorkspace = () => {
+    setWorkspaces((prevState) => {
+      return prevState.filter(
+        (workspace, index) => index !== selectedWorkspace
+      );
+    });
+    setSelectedWorkspace(0);
+  };
+  //Update file contents in the file tree on editor changes
+  useEffect(() => {
+    saveFile();
+  }, [selectedCode]);
 
   return (
     <WorkspaceContext.Provider
@@ -99,6 +213,12 @@ export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({
         trace,
         traceError,
         simulationParameters,
+        selectedFileId,
+        contract,
+        addFile,
+        saveFile,
+        createNewWorkspace,
+        deleteWorkspace,
         setWorkspaces,
         setSelectedWorkspace,
         setSelectedCode,
@@ -111,6 +231,9 @@ export const WorkspaceProvider: React.FC<{ children: ReactNode }> = ({
         setTrace,
         setTraceError,
         setSimulationParameters,
+        setSelectedFileId,
+        setSelectedFolder,
+        setContract,
       }}
     >
       {children}

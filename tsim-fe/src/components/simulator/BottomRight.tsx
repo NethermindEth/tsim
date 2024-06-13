@@ -138,7 +138,6 @@ export default function BottomRight() {
         </TabsList>
         <TabsContent value="sierra">
           <Editor
-          
             height={"40vh"}
             language="json"
             theme="vs-dark"
@@ -211,14 +210,12 @@ const ExecutionTrace = ({ relocationTrace }: any) => {
 
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTop=53*currentPc;
+      scrollRef.current.scrollTop = 53 * currentPc;
     }
   }, [currentPc]);
 
-
   useEffect(() => {
-    if(typeof relocationTrace[traceIndex]==="undefined")
-      return;
+    if (typeof relocationTrace[traceIndex] === "undefined") return;
     const pc = relocationTrace[traceIndex].pc;
     const realPc = pc - 1;
     setCurrentPc(realPc);
@@ -240,6 +237,7 @@ const ExecutionTrace = ({ relocationTrace }: any) => {
       casmSierraMapping,
       sierraCairoInfoMapping
     );
+
     if (location) {
       setLocation(location);
     }
@@ -263,8 +261,12 @@ const ExecutionTrace = ({ relocationTrace }: any) => {
       for (const locationIndex of sierraLocationsIndices) {
         let cairoLocations =
           sierraCairoInfoMapping[locationIndex].cairo_locations;
+        console.log(fileName, cairoLocations);
         for (const location of cairoLocations) {
-          if (location.file_name == `${fileName}.cairo`) {
+          if (
+            location.file_name == `${fileName}.cairo` ||
+            location.file_name == "contract"
+          ) {
             console.log(location);
             return location;
           }
@@ -279,7 +281,7 @@ const ExecutionTrace = ({ relocationTrace }: any) => {
         <div className="w-1/2 m-2 flex flex-col">Execution Trace</div>
         <div className="w-full">
           <div className="buttons flex justify-end">
-            <AiOutlineUndo 
+            <AiOutlineUndo
               onClick={() => {
                 if (traceIndex > 0) {
                   setTraceIndex(traceIndex - 1);
@@ -295,11 +297,14 @@ const ExecutionTrace = ({ relocationTrace }: any) => {
               }}
               className="mr-2 hover:cursor-pointer"
             />
-            <AiOutlinePlayCircle className="hover:cursor-pointer"/>
+            <AiOutlinePlayCircle className="hover:cursor-pointer" />
           </div>
         </div>
       </div>
-      <div className="relative h-96 overflow-y-auto no-scrollbar" ref={scrollRef}>
+      <div
+        className="relative h-96 overflow-y-auto no-scrollbar"
+        ref={scrollRef}
+      >
         <Table>
           <TableHeader>
             <TableRow>
