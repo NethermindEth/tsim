@@ -52,6 +52,9 @@ export default function CodeEditor({ readOnly }: { readOnly: boolean }) {
         },
       ]);
       setDecorations(newDecorations);
+
+      // Scroll to the highlighted line
+      editor.revealLineInCenter(startLineNumber);
     }
   }, [editor, monacoInstance, location]);
 
