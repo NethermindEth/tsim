@@ -11,10 +11,14 @@ The Starknet Transaction Simulator is a tool designed to simulate transactions o
 To get started with the Starknet Transaction Simulator, clone the repository and install the necessary dependencies.
 
 ```
+cd tsim-fe
+
+bun install
 bun run dev
 
 or
 
+npm install
 npm run dev
 ```
 
