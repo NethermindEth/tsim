@@ -2,16 +2,15 @@
 import { useWorkspace } from "@/components/simulator/Context";
 import { useState, useEffect, useRef } from "react";
 import {
-  Account,
-  AccountInvocations,
   ArraySignatureType,
   CairoVersion,
   Call,
   constants,
-  Invocations,
+  CallData,
   RpcProvider,
   selector,
   stark,
+  Invocations,
   TransactionType,
 } from "starknet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -40,7 +39,7 @@ const Simulate = ({ functions }: { functions?: Function }) => {
   const {
     account,
     contractAddress,
-    trace,
+    compilationResult,
     setTrace,
     setTraceError,
     setSimulationParameters,
@@ -59,67 +58,84 @@ const Simulate = ({ functions }: { functions?: Function }) => {
 
     try {
       const provider = new RpcProvider({
-        nodeUrl: "https://free-rpc.nethermind.io/sepolia-juno/",
+        nodeUrl: account?.channel.nodeUrl,
       });
 
       const walletAddress = account?.address;
-      console.log(walletAddress);
       const nonce = await provider.getNonceForAddress(walletAddress!);
-      console.log(nonce);
       const chainId = await account?.getChainId();
       const maxFee = "0x0";
-      const version = 1;
+      const version = "0x1";
       const cairoVersion = "1";
 
-      const entrypoint = selector.getSelectorFromName(functionName);
-      calldata = [
-        "0x0000000000000000000000000000000000000000000000000000000000000000",
-        "0x0",
-      ];
+      const entrypoint = selector.getSelectorFromName("increase_balance");
 
       const call: Call = {
         contractAddress,
         entrypoint,
         calldata: {
-          recipient:
-            "0x053f84E5968D384C1e6C731DfE9426705165a123d52388E006BA74437983f743",
-          amount: "0x0",
+          amount: "0x1",
         },
       };
-
-      const signature = await signTransaction(
-        walletAddress!,
-        nonce,
-        maxFee,
-        version,
-        chainId!,
-        cairoVersion,
-        call
-      );
-
+      // TODO: Make it more dynamic
       calldata = [
         "0x1",
         contractAddress,
         entrypoint,
-        "0x3",
-        "0x0000000000000000000000000000000000000000000000000000000000000000",
-        "0x0",
-        "0x0",
+        `0x${calldata.length.toString(16)}`,
+        ...calldata,
       ];
 
+      // const signature = await signTransaction(
+      //   walletAddress!,
+      //   nonce,
+      //   maxFee,
+      //   version,
+      //   chainId!,
+      //   cairoVersion,
+      //   call
+      // );
+      // console.log(calldata);
+      // const invocations: Invocations = [
+      //   {
+      //     type: TransactionType.INVOKE,
+      //     // version: "0x1",
+      //     // sender_address: walletAddress!,
+      //     calldata,
+      //     // max_fee: "0x0",
+      //     // signature,
+      //     // nonce,
+      //     entrypoint:
+      //       "0x362398bec32bc0ebb411203221a35a0301193a96f317ebe5e40be9f60d15320",
+      //     contractAddress,
+      //   },
+      // ];
+
+      // account
+      //   ?.simulateTransaction(invocations, { skipValidate: true })
+      //   .then((res) => {
+      //     console.log(res);
+      //   })
+      //   .catch((err) => {
+      //     console.log(err);
+      //   });
+
+      // const abi = JSON.parse(compilationResult!).cairo_sierra
+      //   .sierra_contract_class.abi;
+      // console.log(abi);
+      // const abiCallData = new CallData(abi);
+      // console.log(abiCallData);
+      // calldata = abiCallData.compile(functionName, calldata);
+      // // calldata = ["0x1"];
       const simulation = await simulateTransactions(
         walletAddress!,
         calldata,
-        signature,
+        [],
         nonce
       );
-      console.log(calldata);
 
-      console.log("Simulation: ");
-      console.log(simulation);
       if (simulation) {
-        console.log("simulation: " + simulation[0].transaction_trace);
-        const trace = await decodeTrace(simulation[0].transaction_trace);
+        const trace = await decodeTrace(simulation.result[0].transaction_trace);
         setTrace(trace);
       }
     } catch (err) {
@@ -140,7 +156,7 @@ const Simulate = ({ functions }: { functions?: Function }) => {
     signature: ArraySignatureType,
     nonce: string
   ) => {
-    const url = "https://free-rpc.nethermind.io/sepolia-juno/";
+    const url = account?.channel.nodeUrl!;
     const payload = {
       jsonrpc: "2.0",
       method: "starknet_simulateTransactions",
@@ -149,12 +165,12 @@ const Simulate = ({ functions }: { functions?: Function }) => {
         transactions: [
           {
             type: "INVOKE",
-            version: "0x1",
             sender_address,
             calldata,
-            max_fee: "0x0",
+            version: "0x1",
             signature,
             nonce,
+            max_fee: "0x0",
           },
         ],
         simulation_flags: ["SKIP_VALIDATE"],
@@ -176,7 +192,6 @@ const Simulate = ({ functions }: { functions?: Function }) => {
       }
 
       const data = await response.json();
-      console.log(data);
       return data;
     } catch (error) {
       console.error("Error fetching data: ", error);
@@ -203,10 +218,18 @@ const Simulate = ({ functions }: { functions?: Function }) => {
     };
 
     const signer = account?.signer;
-    const signature = await signer?.signTransaction([call], signerDetails);
 
-    const formatedSignature = stark.formatSignature(signature);
-    console.log(formatedSignature);
+    const signature = await signer
+      ?.signTransaction([call], signerDetails)
+      .then((signature) => {
+        return signature;
+      })
+      .catch((err) => {
+        console.log("error: ", err);
+        return null;
+      });
+
+    const formatedSignature = stark.formatSignature(signature!);
     return formatedSignature;
   };
 

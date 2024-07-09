@@ -82,12 +82,13 @@ export const compileCode = async (
 
 export default function BottomLeft() {
   const {
+    functions,
     selectedCode,
     selectedFileName,
     setCompilationResult,
     setContractAddress,
     setFunctions,
-    functions,
+    setContract,
   } = useWorkspace();
 
   return (
@@ -112,6 +113,8 @@ export default function BottomLeft() {
                 if (data) {
                   setCompilationResult(JSON.stringify(data, null, 2));
 
+                  let contract = data.cairo_sierra.contract;
+                  setContract(contract);
                   const abi = data.cairo_sierra.sierra_contract_class.abi;
 
                   if (abi) {
