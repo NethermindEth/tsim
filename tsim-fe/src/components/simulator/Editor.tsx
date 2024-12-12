@@ -31,7 +31,7 @@ export default function CodeEditor({ readOnly }: { readOnly: boolean }) {
         endColNumber: location.end.col + 1,
       };
 
-      if (location.file_name == "contract") {
+      if (location.file_name == "contract" && contract) {
         setViewContract(true);
       } else {
         setViewContract(false);
@@ -52,6 +52,9 @@ export default function CodeEditor({ readOnly }: { readOnly: boolean }) {
         },
       ]);
       setDecorations(newDecorations);
+
+      // Scroll to the highlighted line
+      editor.revealLineInCenter(startLineNumber);
     }
   }, [editor, monacoInstance, location]);
 
