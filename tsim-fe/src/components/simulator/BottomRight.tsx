@@ -302,7 +302,7 @@ const ExecutionTrace = ({ relocationTrace }: any) => {
         </div>
       </div>
       <div
-        className="relative h-96 overflow-y-auto no-scrollbar"
+        className="relative h-96 overflow-y-auto no-scrollbar "
         ref={scrollRef}
       >
         <Table>
